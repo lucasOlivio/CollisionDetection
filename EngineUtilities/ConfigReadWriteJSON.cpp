@@ -1,5 +1,5 @@
 #include "ConfigReadWriteJSON.h"
-#include "common/constants.h"
+#include "constants.h"
 #include "SceneParserJSON.h"
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
@@ -13,7 +13,7 @@ ConfigReadWriteJSON::~ConfigReadWriteJSON()
 {
 }
 
-bool ConfigReadWriteJSON::ReadScene(const std::string& filePath, myecs::sScene* pScene)
+bool ConfigReadWriteJSON::ReadScene(const std::string& filePath, engine::Scene* pScene)
 {
     using namespace rapidjson;
 
@@ -47,7 +47,7 @@ bool ConfigReadWriteJSON::ReadScene(const std::string& filePath, myecs::sScene* 
     return true;
 }
 
-bool ConfigReadWriteJSON::WriteScene(const std::string& filePath, myecs::sScene* pScene)
+bool ConfigReadWriteJSON::WriteScene(const std::string& filePath, engine::Scene* pScene)
 {
     return false;
 }

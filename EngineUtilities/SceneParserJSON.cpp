@@ -1,5 +1,5 @@
 #include "SceneParserJSON.h"
-#include "common/components.h"
+#include "components.h"
 #include "ParserJSON.h"
 
 SceneParserJSON::SceneParserJSON()
@@ -10,10 +10,10 @@ SceneParserJSON::~SceneParserJSON()
 {
 }
 
-bool SceneParserJSON::Parse(rapidjson::Value& jsonObject, myecs::sScene* pScene)
+bool SceneParserJSON::Parse(rapidjson::Value& jsonObject, engine::Scene* pScene)
 {
     using namespace rapidjson;
-    using namespace myecs;
+    using namespace engine;
 
     bool isValid = jsonObject.IsArray();
     if (!isValid)
@@ -25,59 +25,69 @@ bool SceneParserJSON::Parse(rapidjson::Value& jsonObject, myecs::sScene* pScene)
     ParserJSON parser = ParserJSON();
 
     // Go over each entity
-    for (uint entity = 0; entity < jsonObject.Size(); entity++) {
-        Value& entityObject = jsonObject[entity];
+    for (uint entityIndex = 0; entityIndex < jsonObject.Size(); entityIndex++) 
+    {
+        // This will be our entity ID count, 
+        // so we can keep track easily later how many entities we heave
+        EntityID entityID = pScene->CreateEntity();
+
+        Value& entityObject = jsonObject[entityIndex];
         bool isValid = entityObject.IsObject();
         if (!isValid)
         {
-            printf("Error: Entity #%d not valid, expected object of components!\n", entity);
+            printf("Error: Entity #%d not valid, expected object of components!\n", entityIndex);
             return false;
         }
         
-        // Inside entity iterate over each component
-        for (Value::ConstMemberIterator entityMember = entityObject.MemberBegin(); entityMember != entityObject.MemberEnd(); ++entityMember) {
+        // Inside EntityIDiterate over each component
+        for (Value::ConstMemberIterator entityMember = entityObject.MemberBegin(); entityMember != entityObject.MemberEnd(); ++entityMember) 
+        {
             std::string componentName = entityMember->name.GetString();
-            Value& componentObject = jsonObject[entity][entityMember->name];
+            Value& componentObject = jsonObject[entityIndex][entityMember->name];
             bool isValid = componentObject.IsObject();
             if (!isValid)
             {
-                printf("Error: Entity #%d not valid, expected object of components!\n", entity);
+                printf("Error: Entity #%d not valid, expected object of components!\n", entityIndex);
                 return false;
             }
 
-            // Foe every specific component we must parse to the expected structure 
+            // For every specific component we must parse to the expected structure 
             // them put in respective map
             bool isParsed = true;
             if (entityMember->name == "transform") 
             {
-                sTransformComponent transform;
+                TransformComponent transform;
 
                 isParsed &= parser.GetVec4(componentObject["position"], transform.position);
-                isParsed &= parser.GetVec4(componentObject["orientation"], transform.position);
                 isParsed &= parser.GetFloat(componentObject["scale"], transform.scale);
+                // Orientation is set using quaternions, so we must use the component to set
+                glm::vec4 orientation;
+                isParsed &= parser.GetVec4(componentObject["orientation"], orientation);
+                transform.SetOrientation(orientation);
 
-                pScene->transforms[entity] = transform;
+                pScene->SetTransform(entityID, transform);
             }
             else if (entityMember->name == "model") 
             {
-                sModelComponent model;
+                ModelComponent model;
 
                 isParsed &= parser.GetString(componentObject["name"], model.name);
                 isParsed &= parser.GetString(componentObject["friendlyName"], model.friendlyName);
                 isParsed &= parser.GetBool(componentObject["isWireframe"], model.isWireframe);
                 isParsed &= parser.GetBool(componentObject["doNotLight"], model.doNotLight);
 
-                pScene->models[entity] = model;
+                pScene->SetModel(entityID, model);
             }
             else if (entityMember->name == "camera") 
             {
-                sCameraComponent camera;
+                CameraComponent camera;
 
                 isParsed &= parser.GetVec3(componentObject["cameraEye"], camera.cameraEye);
                 isParsed &= parser.GetVec3(componentObject["cameraTarget"], camera.cameraTarget);
                 isParsed &= parser.GetVec3(componentObject["upVector"], camera.upVector);
+                isParsed &= parser.GetBool(componentObject["isActive"], camera.isActive);
 
-                pScene->cameras[entity] = camera;
+                pScene->SetCamera(entityID, camera);
             }
             else
             {
@@ -87,7 +97,7 @@ bool SceneParserJSON::Parse(rapidjson::Value& jsonObject, myecs::sScene* pScene)
 
             if (!isParsed)
             {
-                printf("Error parsing component '%s' from entity #%d", componentName.c_str(), entity);
+                printf("Error parsing component '%s' from entity #%llu", componentName.c_str(), entityID);
                 return false;
             }
         }

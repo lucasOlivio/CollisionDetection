@@ -19,9 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="components\Transform.cpp" />
     <ClCompile Include="ConfigReadWriteFactory.cpp" />
     <ClCompile Include="ConfigReadWriteJSON.cpp" />
+    <ClCompile Include="events\Event.cpp" />
+    <ClCompile Include="events\EventManager.cpp" />
+    <ClCompile Include="events\KeyCommand.cpp" />
+    <ClCompile Include="events\KeyEvent.cpp" />
+    <ClCompile Include="events\Listener.cpp" />
+    <ClCompile Include="openglerrors.cpp" />
     <ClCompile Include="ParserJson.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneParserJSON.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>

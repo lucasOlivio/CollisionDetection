@@ -1,14 +1,14 @@
 #pragma once
+
 #include "iShaderMediator.h"
-#include "common/types.h"
-#include "common/opengl.h"
+#include "types.h"
+#include "opengl.h"
 #include <glm/mat4x4.hpp>
 
 class WindowSystem
 {
 private:
 	GLFWwindow* m_pWindow;
-
 	iShaderMediator* m_pShaderMediator;
 public:
 	// ctors & dtors
@@ -16,9 +16,16 @@ public:
 	~WindowSystem();
 
 	// Where we really start/destroy everything that could go wrong
-	bool Initialize(uint width, uint height, const std::string& windowName);
+	bool Initialize(uint width, uint height, const std::string& windowName, GLFWkeyfun KeyCallback);
 	void Destroy();
 
-	// Called each frame
-	void Update(std::string& shaderProgramName);
+	// Clear all and bind opengl parameters
+	void NewFrame(std::string& shaderProgram);
+	void UpdateUL(std::string& shaderProgram);
+	// Swap frames and buffers
+	void EndFrame();
+
+	bool WindowShouldClose();
+
+	float GetCurrentWindowRatio();
 };

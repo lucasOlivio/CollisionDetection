@@ -1,6 +1,7 @@
 #pragma once
-#include "common/scene.h"
-#include "common/components.h"
+
+#include "scene.h"
+#include "components/Model.h"
 #include "managers/VAOManager.h"
 #include "iShaderMediator.h"
 
@@ -15,10 +16,10 @@ public:
 	~ModelSystem();
 
 	// Where we really start/destroy everything that could go wrong
-	bool Initialize(std::string basePath, myecs::sScene* pScene);
-	void Destroy();
+	bool Initialize(std::string basePath, std::string& shaderProgram, engine::Scene* pScene);
+	void Destroy(engine::Scene* pScene);
 
 	// Called for each entity each frame
-	void Update(uint entity, myecs::sScene* pScene, std::string& shaderProgramName);
-	void Render(uint entity, myecs::sScene* pScene, std::string& shaderProgramName);
+	void UpdateUL(EntityID entityID, engine::Scene* pScene, std::string& shaderProgram);
+	void Render(EntityID entityID, engine::Scene* pScene, std::string& shaderProgram);
 };

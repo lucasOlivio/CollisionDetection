@@ -7,6 +7,7 @@ Engine::Engine()
 	this->m_shaderProgramName = "";
 
 	this->m_pShaderManager = nullptr;
+	this->m_pEventManager = nullptr;
 
 	this->m_pModelSystem = nullptr;
 	this->m_pTransformSystem = nullptr;
@@ -19,6 +20,7 @@ Engine::Engine()
 Engine::~Engine()
 {
 	delete this->m_pShaderManager;
+	delete this->m_pEventManager;
 	delete this->m_pModelSystem;
 	delete this->m_pTransformSystem;
 	delete this->m_pWindowSystem;
@@ -36,7 +38,7 @@ bool Engine::Initialize(const std::string& sceneName)
 
 	printf("Initializing creation of scene '%s'\n", sceneName.c_str());
 
-	this->m_pScene = new myecs::sScene();
+	this->m_pScene = new engine::Scene();
 	iConfigReadWrite* pConfigrw = ConfigReadWriteFactory::CreateConfigReadWrite("json");
 
 	// Load all database files
@@ -62,14 +64,20 @@ bool Engine::Initialize(const std::string& sceneName)
 	delete pConfigrw;
 
 	printf("Creating systems...\n");
+	// Rendering & components
 	this->m_pShaderManager = new ShaderManager(baseShadersPath);
 	this->m_pModelSystem = new ModelSystem(this->m_pShaderManager);
 	this->m_pWindowSystem = new WindowSystem(this->m_pShaderManager);
 	this->m_pCameraSystem = new CameraSystem(this->m_pShaderManager);
 	this->m_pTransformSystem = new TransformSystem(this->m_pShaderManager);
 
+	// Events
+	this->m_pEventManager = EventManager::GetInstance();
+	this->m_pKeyEvent = new KeyEvent(this->m_pEventManager);
+	KeyCommand::SetKeyEvent(this->m_pKeyEvent);
+
 	printf("Initializing rendering api...\n");
-	bool isWindowSystemInitialized = this->m_pWindowSystem->Initialize(windowWidth, windowHeight, windowName);
+	bool isWindowSystemInitialized = this->m_pWindowSystem->Initialize(windowWidth, windowHeight, windowName, KeyCommand::KeyCallback);
 	if (!isWindowSystemInitialized)
 	{
 		printf("Error initializing Window system!\n"); // TODO: Remove error handling repetition
@@ -84,31 +92,21 @@ bool Engine::Initialize(const std::string& sceneName)
 		printf("Error creating shader program!\n"); // TODO: Remove error handling repetition
 		return false;
 	}
+	this->m_pShaderManager->UseShaderProgram(this->m_shaderProgramName);
 
 	printf("Initializing systems...\n");
 	// Initializes all systems
-	bool isModelSystemInitialized = this->m_pModelSystem->Initialize(baseModelPath, this->m_pScene);
+	bool isModelSystemInitialized = this->m_pModelSystem->Initialize(baseModelPath, 
+																	 this->m_shaderProgramName, 
+																	 this->m_pScene);
 	if (!isModelSystemInitialized)
 	{
 		printf("Error initializing Model system!\n"); // TODO: Remove error handling repetition
 		return false;
 	}
 
-	bool isCameraSystemInitialized = this->m_pCameraSystem->Initialize();
-	if (!isCameraSystemInitialized)
-	{
-		printf("Error initializing Camera system!\n"); // TODO: Remove error handling repetition
-		return false;
-	}
-
-	bool isTransformSystemInitialized = this->m_pTransformSystem->Initialize();
-	if (!isTransformSystemInitialized)
-	{
-		printf("Error initializing Transform system!\n"); // TODO: Remove error handling repetition
-		return false;
-	}
-
 	this->m_isInitialized = true;
+	this->m_isRunning = true;
 	printf("Scene '%s' created scussesfully!\n", sceneName.c_str());
 
     return true;
@@ -116,13 +114,38 @@ bool Engine::Initialize(const std::string& sceneName)
 
 void Engine::Destroy()
 {
-	this->m_pModelSystem->Destroy();
+	this->m_pModelSystem->Destroy(this->m_pScene);
 	this->m_pWindowSystem->Destroy();
-	this->m_pCameraSystem->Destroy();
-	this->m_pTransformSystem->Destroy();
 	return;
 }
 
 void Engine::Update()
 {
+	this->m_pWindowSystem->NewFrame(this->m_shaderProgramName);
+
+	for (EntityID entityID = 0; entityID < this->m_pScene->GetNumEntities(); entityID++)
+	{
+		this->m_pTransformSystem->UpdateUL(entityID, this->m_pScene, this->m_shaderProgramName);
+		this->m_pModelSystem->UpdateUL(entityID, this->m_pScene, this->m_shaderProgramName);
+		this->m_pWindowSystem->UpdateUL(this->m_shaderProgramName);
+		this->m_pCameraSystem->UpdateUL(this->m_pScene, this->m_shaderProgramName);
+
+		this->m_pModelSystem->Render(entityID, this->m_pScene, this->m_shaderProgramName);
+	}
+
+	this->m_pWindowSystem->EndFrame();
+
+	this->m_isRunning &= !this->m_pWindowSystem->WindowShouldClose();
+}
+
+bool Engine::IsRunning()
+{
+	if (this->m_isRunning)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

@@ -15,25 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\common\components.h">
+    <ClInclude Include="include\components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\common\types.h">
+    <ClInclude Include="include\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\common\drawInfo.h">
+    <ClInclude Include="include\drawInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\common\scene.h">
+    <ClInclude Include="include\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\common\entity.h">
+    <ClInclude Include="include\opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\common\opengl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\common\constants.h">
+    <ClInclude Include="include\constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SceneParserJSON.h">
@@ -52,6 +49,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ParserJSON.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\openglerrors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\EventManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\Event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\Listener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\KeyEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\KeyCommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

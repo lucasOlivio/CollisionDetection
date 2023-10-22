@@ -1,6 +1,6 @@
 #include "managers/ShaderManager.h"
-#include "common/opengl.h"
-#include "common/constants.h"
+#include "opengl.h"
+#include "constants.h"
 
 #include <fstream>
 #include <sstream>
@@ -22,15 +22,15 @@ ShaderManager::~ShaderManager()
 }
 
 
-bool ShaderManager::AddShaderProgram(std::string shaderProgramName)
+bool ShaderManager::AddShaderProgram(std::string shaderProgram)
 {
 	ShaderManager::Shader vertexShader;
-	vertexShader.fileName = "vertex" + shaderProgramName + ".glsl";
+	vertexShader.fileName = "vertex" + shaderProgram + ".glsl";
 
 	ShaderManager::Shader fragmentShader;
-	fragmentShader.fileName = "fragment" + shaderProgramName + ".glsl";
+	fragmentShader.fileName = "fragment" + shaderProgram + ".glsl";
 
-	bool shaderCompiled = this->CreateProgramFromFile(shaderProgramName, vertexShader, fragmentShader);
+	bool shaderCompiled = this->CreateProgramFromFile(shaderProgram, vertexShader, fragmentShader);
 
 	if (!shaderCompiled) {
 		printf("Error: Couldn't compile or link: %s \n", this->GetLastError().c_str());
@@ -40,7 +40,7 @@ bool ShaderManager::AddShaderProgram(std::string shaderProgramName)
 	return true;
 }
 
-bool ShaderManager::UseShaderProgram(unsigned int ID)
+bool ShaderManager::UseShaderProgram(uint ID)
 {
 	// Use the number directy... 
 	// TODO: Might do a lookup to see if we really have that ID...
@@ -48,9 +48,9 @@ bool ShaderManager::UseShaderProgram(unsigned int ID)
 	return true;
 }
 
-bool ShaderManager::UseShaderProgram(std::string shaderProgramName)
+bool ShaderManager::UseShaderProgram(std::string& shaderProgram)
 {
-	unsigned int shaderProgramID = this->GetIDFromShaderProgramName(shaderProgramName);
+	uint shaderProgramID = this->GetIDFromShaderProgramName(shaderProgram);
 
 	if (shaderProgramID == 0)
 	{
@@ -62,10 +62,10 @@ bool ShaderManager::UseShaderProgram(std::string shaderProgramName)
 	return true;
 }
 
-unsigned int ShaderManager::GetIDFromShaderProgramName(std::string shaderProgramName)
+uint ShaderManager::GetIDFromShaderProgramName(std::string& shaderProgram)
 {
-	std::map< std::string /*name*/, unsigned int /*ID*/ >::iterator
-		itShad = this->m_shaderProgramNameToID.find(shaderProgramName);
+	std::map< std::string /*name*/, uint /*ID*/ >::iterator
+		itShad = this->m_shaderProgramNameToID.find(shaderProgram);
 
 	if (itShad == this->m_shaderProgramNameToID.end())
 	{	// Didn't find it
@@ -75,13 +75,13 @@ unsigned int ShaderManager::GetIDFromShaderProgramName(std::string shaderProgram
 }
 
 ShaderManager::ShaderProgram*
-ShaderManager::GetShaderProgramFromName(std::string shaderProgramName)
+ShaderManager::GetShaderProgramFromName(std::string& shaderProgram)
 {
-	unsigned int shaderProgramID = this->GetIDFromShaderProgramName(shaderProgramName);
+	uint shaderProgramID = this->GetIDFromShaderProgramName(shaderProgram);
 
 	// Now get the actual shader
 
-	std::map< unsigned int /*ID*/, ShaderProgram >::iterator
+	std::map< uint /*ID*/, ShaderProgram >::iterator
 		itShaderProgram = this->m_IDToShaderProgram.find(shaderProgramID);
 
 	if (itShaderProgram == this->m_IDToShaderProgram.end())
@@ -100,9 +100,8 @@ void ShaderManager::SetBasePath(std::string basepath)
 	return;
 }
 
-
 // Returns bool if didn't load
-bool ShaderManager::m_LoadSourceFromFile(Shader& shader, std::string errorText)
+bool ShaderManager::m_LoadSourceFromFile(Shader& shader, std::string& errorText)
 {
 	std::string fullFileName = this->m_basepath + shader.fileName;
 	printf("Opening shader file %s\n", fullFileName.c_str());
@@ -120,10 +119,7 @@ bool ShaderManager::m_LoadSourceFromFile(Shader& shader, std::string errorText)
 	while (theFile.getline(pLineTemp, MAX_LINE_LENGTH))
 	{
 		std::string tempString(pLineTemp);
-		//if ( tempString != "" )
-		//{	// Line isn't empty, so add
 		shader.vecSource.push_back(tempString);
-		//}
 	}
 
 	theFile.close();
@@ -132,8 +128,7 @@ bool ShaderManager::m_LoadSourceFromFile(Shader& shader, std::string errorText)
 
 // Returns empty string if no error
 // returns false if no error
-bool ShaderManager::m_WasThereACompileError(unsigned int shaderID,
-	std::string& errorText)
+bool ShaderManager::m_WasThereACompileError(uint shaderID, std::string& errorText)
 {
 	errorText = "";	// No error
 
@@ -145,7 +140,7 @@ bool ShaderManager::m_WasThereACompileError(unsigned int shaderID,
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &maxLength);
 
 		char* pLogText = new char[maxLength];
-		// Fill with zeros, maybe...?
+
 		glGetShaderInfoLog(shaderID, maxLength, &maxLength, pLogText);
 		// Copy char array to string
 		errorText.append(pLogText);
@@ -154,14 +149,14 @@ bool ShaderManager::m_WasThereACompileError(unsigned int shaderID,
 		this->m_lastError.append(errorText);
 
 
-		delete[] pLogText;	// Oops
+		delete[] pLogText;
 
 		return true;	// There WAS an error
 	}
 	return false; // There WASN'T an error
 }
 
-bool ShaderManager::m_WasThereALinkError(unsigned int programID, std::string& errorText)
+bool ShaderManager::m_WasThereALinkError(uint programID, std::string& errorText)
 {
 	errorText = "";	// No error
 
@@ -201,19 +196,23 @@ std::string ShaderManager::GetLastError(void)
 	return lastErrorTemp;
 }
 
-int ShaderManager::GetUL(std::string& shaderProgramName, std::string& ulName)
+int ShaderManager::GetUL(std::string& shaderProgram, const char* ulName)
 {
-	ShaderProgram* pShaderProgram = this->GetShaderProgramFromName(shaderProgramName);
+	ShaderProgram* pShaderProgram = this->GetShaderProgramFromName(shaderProgram);
 	return pShaderProgram->GetUniformIDFromName(ulName);
+}
+
+int ShaderManager::GetAL(std::string& shaderProgram, const char* alName)
+{
+	ShaderProgram* pShaderProgram = this->GetShaderProgramFromName(shaderProgram);
+	return pShaderProgram->GetAttributeIDFromName(alName);
 }
 
 bool ShaderManager::m_CompileShaderFromSource(ShaderManager::Shader& shader, std::string& error)
 {
 	error = "";
 
-	const unsigned int MAXLINESIZE = 8 * 1024;	// About 8K PER LINE, which seems excessive
-
-	unsigned int numberOfLines = static_cast<unsigned int>(shader.vecSource.size());
+	uint numberOfLines = static_cast<uint>(shader.vecSource.size());
 
 	// This is an array of pointers to strings. aka the lines of source
 	char** arraySource = new char* [numberOfLines];
@@ -221,9 +220,9 @@ bool ShaderManager::m_CompileShaderFromSource(ShaderManager::Shader& shader, std
 	memset(arraySource, 0, numberOfLines);
 
 	printf("Loading shader text...\n");
-	for (unsigned int indexLine = 0; indexLine != numberOfLines; indexLine++)
+	for (uint indexLine = 0; indexLine != numberOfLines; indexLine++)
 	{
-		unsigned int numCharacters = (unsigned int)shader.vecSource[indexLine].length();
+		uint numCharacters = (uint)shader.vecSource[indexLine].length();
 		// Create an array of chars for each line
 		arraySource[indexLine] = new char[numCharacters + 2];		// For the '\n' and '\0' at end
 		memset(arraySource[indexLine], 0, numCharacters + 2);;
@@ -234,7 +233,6 @@ bool ShaderManager::m_CompileShaderFromSource(ShaderManager::Shader& shader, std
 			shader.vecSource[indexLine].c_str());
 		arraySource[indexLine][numCharacters + 0] = '\n';
 		arraySource[indexLine][numCharacters + 1] = '\0';
-
 	}
 
 	printf("Compiling shader...\n");
@@ -242,7 +240,7 @@ bool ShaderManager::m_CompileShaderFromSource(ShaderManager::Shader& shader, std
 	glCompileShader(shader.ID);
 
 	// Get rid of the temp source "c" style array
-	for (unsigned int indexLine = 0; indexLine != numberOfLines; indexLine++)
+	for (uint indexLine = 0; indexLine != numberOfLines; indexLine++)
 	{	// Delete this line
 		delete[] arraySource[indexLine];
 	}
@@ -264,13 +262,11 @@ bool ShaderManager::m_CompileShaderFromSource(ShaderManager::Shader& shader, std
 	return true;
 }
 
-bool ShaderManager::CreateProgramFromFile(
-	std::string shaderProgramName,
-	Shader& vertexShad,
-	Shader& fragShader)
+bool ShaderManager::CreateProgramFromFile(std::string shaderProgram,
+										  Shader& vertexShad,
+										  Shader& fragShader)
 {
 	std::string errorText = "";
-
 
 	// Shader loading happening before vertex buffer array
 	vertexShad.ID = glCreateShader(GL_VERTEX_SHADER);
@@ -304,7 +300,6 @@ bool ShaderManager::CreateProgramFromFile(
 		return false;
 	}
 
-
 	ShaderProgram curProgram;
 	curProgram.ID = glCreateProgram();
 
@@ -325,7 +320,7 @@ bool ShaderManager::CreateProgramFromFile(
 
 	// At this point, shaders are compiled and linked into a program
 
-	curProgram.name = shaderProgramName;
+	curProgram.name = shaderProgram;
 
 	// Add the shader to the map
 	this->m_IDToShaderProgram[curProgram.ID] = curProgram;

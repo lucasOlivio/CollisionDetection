@@ -73,12 +73,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)extern\include\;$(ProjectDir)include\;$(SolutionDir)EngineAPI\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)extern\lib\$(Configuration)\;$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)game\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)game\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)extern\include\;$(ProjectDir)include\;$(SolutionDir)EngineAPI\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)extern\lib\$(Configuration)\;$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)game\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)game\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
+    <ClCompile Include="src\managers\VAOManager.cpp" />
     <ClCompile Include="src\systems\WindowSystem.cpp" />
     <ClCompile Include="src\systems\TransformSystem.cpp" />
     <ClCompile Include="src\systems\CameraSystem.cpp" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iShaderMediator.h"
+#include "types.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -13,7 +14,7 @@ public:
 		Shader();
 		~Shader();
 
-		unsigned int ID;
+		uint ID;
 		std::vector<std::string> vecSource;
 		bool isSourceMultiLine;
 		std::string fileName;
@@ -34,16 +35,23 @@ public:
 		std::map< std::string /*name of uniform variable*/,
 			int /* uniform location ID */ >
 			m_mapUniformNameToUniformLocation;
+		std::map< std::string /*name of attribute variable*/,
+			int /* attribute location ID */ >
+			m_mapAttributeNameToAttributeLocation;
 	public:
 		ShaderProgram();
 		~ShaderProgram();
-		unsigned int ID;	// ID from OpenGL
+		uint ID;	// ID from OpenGL
 		std::string name;	// We give it this name
 
 		// Returns -1 (just like OpenGL) if NOT found
-		int GetUniformIDFromName(std::string name);
+		int GetUniformIDFromName(const char* name);
+		// Returns -1 (just like OpenGL) if NOT found
+		int GetAttributeIDFromName(const char* name);
 		// Look up the uniform location and save it.
-		bool LoadUniformLocation(std::string variableName);
+		bool LoadUniformLocation(const char* variableName);
+		// Look up the attribute location and save it.
+		bool LoadAttributeLocation(const char* variableName);
 
 	};
 
@@ -51,39 +59,40 @@ public:
 	~ShaderManager();
 
 	// Where we initialize all things that could go wrong
-	bool AddShaderProgram(std::string shaderProgramName);
+	bool AddShaderProgram(std::string shaderProgram);
 
-	bool UseShaderProgram(unsigned int ID);
-	bool UseShaderProgram(std::string shaderProgramName);
-	bool CreateProgramFromFile(std::string shaderProgramName,
-		Shader& vertexShad,
-		Shader& fragShader);
+	bool CreateProgramFromFile(std::string shaderProgram,
+							   Shader& vertexShad,
+							   Shader& fragShader);
 	void SetBasePath(std::string basepath);
-	unsigned int GetIDFromShaderProgramName(std::string shaderProgramName);
 
 	// Used to load the uniforms. Returns NULL if not found.
-	ShaderProgram* GetShaderProgramFromName(std::string shaderProgramName);
+	ShaderProgram* GetShaderProgramFromName(std::string& shaderProgram);
 
 	// Clears last error
 	std::string GetLastError(void);
 
-	// Use the shader program name to get the UL
-	virtual int GetUL(std::string& shaderProgramName, std::string& ulName);
+	// Use the shader program name to get the UL from cache or load from opengl
+	virtual int GetUL(std::string& shaderProgram, const char* ulName);
+	// Use the shader program name to get the AL from cache or load from opengl
+	virtual int GetAL(std::string& shaderProgram, const char* alName);
+	// Bind opengl to this shader program
+	virtual bool UseShaderProgram(uint ID);
+	virtual bool UseShaderProgram(std::string& shaderProgram);
+	virtual uint GetIDFromShaderProgramName(std::string& shaderProgram);
 
 private:
-	bool m_isInitialized;
-
 	// Returns an empty string if it didn't work
-	bool m_LoadSourceFromFile(Shader& shader, std::string errorText);
+	bool m_LoadSourceFromFile(Shader& shader, std::string& errorText);
 	std::string m_basepath;
 
 	bool m_CompileShaderFromSource(Shader& shader, std::string& error);
 	// returns false if no error
-	bool m_WasThereACompileError(unsigned int shaderID, std::string& errorText);
-	bool m_WasThereALinkError(unsigned int progID, std::string& errorText);
+	bool m_WasThereACompileError(uint shaderID, std::string& errorText);
+	bool m_WasThereALinkError(uint progID, std::string& errorText);
 
 	std::string m_lastError;
 
-	std::map< unsigned int /*ID*/, ShaderProgram > m_IDToShaderProgram;
-	std::map< std::string /*name*/, unsigned int /*ID*/ > m_shaderProgramNameToID;
+	std::map< uint /*ID*/, ShaderProgram > m_IDToShaderProgram;
+	std::map< std::string /*name*/, uint /*ID*/ > m_shaderProgramNameToID;
 };

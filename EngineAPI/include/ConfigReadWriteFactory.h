@@ -1,4 +1,5 @@
 #pragma once
+
 #include "iConfigReadWrite.h"
 
 class ConfigReadWriteFactory

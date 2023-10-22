@@ -1,5 +1,6 @@
 #pragma once
-#include "common/scene.h"
+
+#include "scene.h"
 #include <string>
 #include <rapidjson/document.h>
 
@@ -9,5 +10,5 @@ public:
 	SceneParserJSON();
 	~SceneParserJSON();
 
-	bool Parse(rapidjson::Value& jsonObject, myecs::sScene* pScene);
+	bool Parse(rapidjson::Value& jsonObject, engine::Scene* pScene);
 };

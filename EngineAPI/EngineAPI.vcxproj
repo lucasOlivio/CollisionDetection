@@ -135,18 +135,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\common\constants.h" />
-    <ClInclude Include="include\common\types.h" />
+    <ClInclude Include="include\components\Camera.h" />
+    <ClInclude Include="include\components\Model.h" />
+    <ClInclude Include="include\components\Transform.h" />
+    <ClInclude Include="include\constants.h" />
+    <ClInclude Include="include\events\Event.h" />
+    <ClInclude Include="include\events\EventManager.h" />
+    <ClInclude Include="include\events\KeyCommand.h" />
+    <ClInclude Include="include\events\KeyEvent.h" />
+    <ClInclude Include="include\events\Listener.h" />
+    <ClInclude Include="include\types.h" />
     <ClInclude Include="include\ConfigReadWriteFactory.h" />
     <ClInclude Include="include\ConfigReadWriteJSON.h" />
-    <ClInclude Include="include\common\opengl.h" />
-    <ClInclude Include="include\common\components.h" />
-    <ClInclude Include="include\common\drawInfo.h" />
-    <ClInclude Include="include\common\entity.h" />
+    <ClInclude Include="include\opengl.h" />
+    <ClInclude Include="include\components.h" />
+    <ClInclude Include="include\drawInfo.h" />
     <ClInclude Include="include\iConfigReadWrite.h" />
+    <ClInclude Include="include\openglerrors.h" />
     <ClInclude Include="include\ParserJSON.h" />
     <ClInclude Include="include\SceneParserJSON.h" />
-    <ClInclude Include="include\common\scene.h" />
+    <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

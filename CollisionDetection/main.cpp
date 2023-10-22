@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "common/constants.h"
+#include "constants.h"
 #include <iostream>
 
 int main(int argc, char* argv[])
@@ -24,6 +24,13 @@ int main(int argc, char* argv[])
     {
         exit(EXIT_FAILURE);
     }
+
+    while (myEngine.IsRunning())
+    {
+        myEngine.Update();
+    }
+
+    myEngine.Destroy();
 
     return 0;
 }
