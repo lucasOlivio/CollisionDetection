@@ -1,15 +1,16 @@
 #pragma once
 
+#include "Component.h"
 #include <string>
 
-namespace engine
+class ModelComponent : public Component
 {
-	class ModelComponent
-	{
-	public:
-		std::string name;
-		std::string friendlyName;
-		bool isWireframe;
-		bool doNotLight;
-	};
+public:
+	std::string name;
+	std::string friendlyName;
+	bool isWireframe;
+	bool doNotLight;
+
+	virtual void GetInfo(sComponentInfo& compInfoOut);
+	virtual void SetParameter(sParameterInfo& parameterIn);
 };

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "opengl.h"
 #include "Event.h"
 
 // Key callback events triggered by glfw on window
@@ -12,8 +11,13 @@ private:
 	int m_action;
 	int m_mods;
 public:
-	KeyEvent(EventManager* pEventManager);
+	KeyEvent();
+	virtual ~KeyEvent();
 
-	void UpdateKeyCallback(int key, int scancode, int action, int mods);
-	void GetKeyCallback(int& key, int& scancode, int& action, int& mods);
+	void UpdateKey(int key, int scancode, int action, int mods);
+
+	int GetKeyCallback();
+	int GetScanCode();
+	int GetAction();
+	int GetMods();
 };

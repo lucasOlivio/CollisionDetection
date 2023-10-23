@@ -136,26 +136,43 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\components\Camera.h" />
+    <ClInclude Include="include\components\Component.h" />
+    <ClInclude Include="include\components\ComponentFactory.h" />
+    <ClInclude Include="include\components\iComponent.h" />
     <ClInclude Include="include\components\Model.h" />
     <ClInclude Include="include\components\Transform.h" />
-    <ClInclude Include="include\constants.h" />
+    <ClInclude Include="include\common\constants.h" />
+    <ClInclude Include="include\EngineEditor\Editor.h" />
+    <ClInclude Include="include\EngineRenderer\CameraSystem.h" />
+    <ClInclude Include="include\EngineRenderer\iShaderInfo.h" />
+    <ClInclude Include="include\EngineRenderer\ModelSystem.h" />
+    <ClInclude Include="include\EngineRenderer\Renderer.h" />
+    <ClInclude Include="include\EngineRenderer\ShaderManager.h" />
+    <ClInclude Include="include\EngineRenderer\VAOManager.h" />
+    <ClInclude Include="include\EngineRenderer\WindowSystem.h" />
     <ClInclude Include="include\events\Event.h" />
-    <ClInclude Include="include\events\EventManager.h" />
-    <ClInclude Include="include\events\KeyCommand.h" />
+    <ClInclude Include="include\events\iEvent.h" />
+    <ClInclude Include="include\events\iListener.h" />
     <ClInclude Include="include\events\KeyEvent.h" />
-    <ClInclude Include="include\events\Listener.h" />
-    <ClInclude Include="include\types.h" />
+    <ClInclude Include="include\events\KeyWrapper.h" />
+    <ClInclude Include="include\scene\iScene.h" />
+    <ClInclude Include="include\common\types.h" />
     <ClInclude Include="include\ConfigReadWriteFactory.h" />
     <ClInclude Include="include\ConfigReadWriteJSON.h" />
-    <ClInclude Include="include\opengl.h" />
+    <ClInclude Include="include\common\opengl.h" />
     <ClInclude Include="include\components.h" />
-    <ClInclude Include="include\drawInfo.h" />
+    <ClInclude Include="include\common\drawInfo.h" />
     <ClInclude Include="include\iConfigReadWrite.h" />
-    <ClInclude Include="include\openglerrors.h" />
+    <ClInclude Include="include\common\openglerrors.h" />
     <ClInclude Include="include\ParserJSON.h" />
     <ClInclude Include="include\SceneParserJSON.h" />
-    <ClInclude Include="include\Scene.h" />
-    <ClInclude Include="include\utils.h" />
+    <ClInclude Include="include\scene\Scene.h" />
+    <ClInclude Include="include\common\utils.h" />
+    <ClInclude Include="include\scene\SceneView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\common\utils.tpp" />
+    <None Include="include\scene\SceneView.tpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

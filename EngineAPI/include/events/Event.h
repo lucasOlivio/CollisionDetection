@@ -1,25 +1,24 @@
 #pragma once
 
-#include "Listener.h"
-#include <string>
+#include "iEvent.h"
+#include <vector>
 
-class EventManager;
+class iListener;
 
 // Event subject
-class Event
+class Event : public iEvent
 {
 private:
-    EventManager* m_pEventManager;
+     std::vector<iListener*> m_pListeners;
 protected:
     Event() {};
-
-    // This method allows subjects to send events via the EventManager
-    virtual void Notify(class Event* pEvent);
 public:
-    Event(EventManager* pManager);
     virtual ~Event();
 
     // These methods allow listeners to subscribe/unsubscribe to this subject
-    virtual void Attach(Listener* pListener);
-    virtual void Dettach(Listener* pListener);
+    virtual void Attach(iListener* pListener);
+    virtual void Dettach(iListener* pListener);
+
+    // This method allows subjects to send events via the EventManager
+    virtual void Notify(iEvent* pEvent);
 };

@@ -73,12 +73,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)extern\include\;$(ProjectDir)include\;$(SolutionDir)EngineAPI\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)extern\lib\$(Configuration)\;$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)game\$(Configuration)\</OutDir>
+    <OutDir>$(ProjectDir)</OutDir>
+    <TargetName>Debug$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)extern\include\;$(ProjectDir)include\;$(SolutionDir)EngineAPI\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)extern\lib\$(Configuration)\;$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)game\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -118,7 +119,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;assimp-vc142-mt.lib;zlibstatic.lib;EngineUtilities.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>EngineRenderer.lib;EngineEditor.lib;EngineUtilities.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,36 +136,24 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;assimp-vc142-mt.lib;zlibstatic.lib;EngineUtilities.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>EngineRenderer.lib;EngineEditor.lib;EngineUtilities.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
-    <ClCompile Include="src\managers\VAOManager.cpp" />
-    <ClCompile Include="src\systems\WindowSystem.cpp" />
-    <ClCompile Include="src\systems\TransformSystem.cpp" />
-    <ClCompile Include="src\systems\CameraSystem.cpp" />
-    <ClCompile Include="src\managers\ShaderManager\Shader.cpp" />
-    <ClCompile Include="src\managers\ShaderManager\ShaderManager.cpp" />
-    <ClCompile Include="src\systems\ModelSystem.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\database\scene.json" />
+    <None Include="assets\models\sphere.ply" />
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />
+    <None Include="configs\scene.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\interfaces\iMediator.h" />
-    <ClInclude Include="include\iShaderMediator.h" />
-    <ClInclude Include="include\managers\ShaderManager.h" />
-    <ClInclude Include="include\managers\VAOManager.h" />
     <ClInclude Include="include\Engine.h" />
-    <ClInclude Include="include\systems\CameraSystem.h" />
-    <ClInclude Include="include\systems\ModelSystem.h" />
-    <ClInclude Include="include\systems\TransformSystem.h" />
-    <ClInclude Include="include\systems\WindowSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

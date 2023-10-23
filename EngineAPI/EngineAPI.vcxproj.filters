@@ -18,19 +18,19 @@
     <ClInclude Include="include\components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\types.h">
+    <ClInclude Include="include\common\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\drawInfo.h">
+    <ClInclude Include="include\common\drawInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Scene.h">
+    <ClInclude Include="include\scene\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\opengl.h">
+    <ClInclude Include="include\common\opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\constants.h">
+    <ClInclude Include="include\common\constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SceneParserJSON.h">
@@ -39,7 +39,7 @@
     <ClInclude Include="include\iConfigReadWrite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\utils.h">
+    <ClInclude Include="include\common\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ConfigReadWriteJSON.h">
@@ -51,7 +51,7 @@
     <ClInclude Include="include\ParserJSON.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\openglerrors.h">
+    <ClInclude Include="include\common\openglerrors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\components\Transform.h">
@@ -63,20 +63,63 @@
     <ClInclude Include="include\components\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\events\EventManager.h">
+    <ClInclude Include="include\EngineRenderer\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\events\Event.h">
+    <ClInclude Include="include\EngineRenderer\ShaderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\events\Listener.h">
+    <ClInclude Include="include\EngineRenderer\VAOManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EngineRenderer\CameraSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EngineRenderer\WindowSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EngineRenderer\iShaderInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EngineRenderer\ModelSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\iEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\iListener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\events\KeyEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\events\KeyCommand.h">
+    <ClInclude Include="include\events\KeyWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\EngineEditor\Editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\iComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\Component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scene\iScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\ComponentFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\events\Event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scene\SceneView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\scene\SceneView.tpp" />
+    <None Include="include\common\utils.tpp" />
   </ItemGroup>
 </Project>

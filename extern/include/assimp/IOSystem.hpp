@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     corresponding C interface.
 #endif
 
-#include "types.h"
+#include "common/types.h"
 
 #ifdef _WIN32
 #   include <direct.h>

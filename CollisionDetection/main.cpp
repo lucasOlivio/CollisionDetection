@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "constants.h"
+#include "common/constants.h"
 #include <iostream>
 
 int main(int argc, char* argv[])

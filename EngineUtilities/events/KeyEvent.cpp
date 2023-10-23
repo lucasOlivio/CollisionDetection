@@ -1,16 +1,18 @@
 #include "events/KeyEvent.h"
 
-KeyEvent::KeyEvent(EventManager* pEventManager)
+KeyEvent::KeyEvent()
 {
 	this->m_pressedKey = 0;
 	this->m_scanCode = 0;
 	this->m_action = 0;
 	this->m_mods = 0;
-
-	this->Event::Event(pEventManager);
 }
 
-void KeyEvent::UpdateKeyCallback(int key, int scancode, int action, int mods)
+KeyEvent::~KeyEvent()
+{
+}
+
+void KeyEvent::UpdateKey(int key, int scancode, int action, int mods)
 {
 	this->m_pressedKey = key;
 	this->m_scanCode = scancode;
@@ -19,10 +21,22 @@ void KeyEvent::UpdateKeyCallback(int key, int scancode, int action, int mods)
 	this->Event::Notify(this);
 }
 
-void KeyEvent::GetKeyCallback(int& key, int& scancode, int& action, int& mods)
+int KeyEvent::GetKeyCallback()
 {
-	key = this->m_pressedKey;
-	scancode = this->m_scanCode;
-	action = this->m_action;
-	mods = this->m_mods;
+	return this->m_pressedKey;
+}
+
+int KeyEvent::GetScanCode()
+{
+	return this->m_scanCode;
+}
+
+int KeyEvent::GetAction()
+{
+	return this->m_action;
+}
+
+int KeyEvent::GetMods()
+{
+	return this->m_mods;
 }

@@ -1,7 +1,7 @@
 [
   {
     "camera": {
-      "cameraEye": [ 5.0, 0.0, 0.0 ],
+      "cameraEye": [ 10.0, 0.0, 0.0 ],
       "cameraTarget": [ 0.0, 0.0, 0.0 ],
       "upVector": [ 0.0, 1.0, 0.0 ],
       "isActive": true
@@ -9,13 +9,26 @@
   },
   {
     "transform": {
-      "position": [ 0.0, 0.0, 0.0, 0.0 ],
-      "orientation": [ 0.0, 0.0, 0.0, 0.0 ],
-      "scale": 2.0
+      "position": [ 0.0, 0.0, -2.0, 0.0 ],
+      "orientation": [ 0.0, 0.0, 0.0 ],
+      "scale": 0.5
     },
     "model": {
       "name": "sphere.ply",
       "friendlyName": "ball",
+      "isWireframe": false,
+      "doNotLight": true
+    }
+  },
+  {
+    "transform": {
+      "position": [ 0.0, 0.0, 2.0, 0.0 ],
+      "orientation": [ 0.0, 0.0, 0.0 ],
+      "scale": 0.5
+    },
+    "model": {
+      "name": "sphere.ply",
+      "friendlyName": "ball2",
       "isWireframe": false,
       "doNotLight": true
     }

@@ -1,6 +1,6 @@
 #include "ConfigReadWriteFactory.h"
 #include "ConfigReadWriteJSON.h"
-#include "utils.h"
+#include "common/utils.h"
 
 iConfigReadWrite* ConfigReadWriteFactory::CreateConfigReadWrite(std::string fileExt)
 {

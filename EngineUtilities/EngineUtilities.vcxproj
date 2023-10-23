@@ -19,18 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="components\Camera.cpp" />
+    <ClCompile Include="components\Component.cpp" />
+    <ClCompile Include="components\ComponentFactory.cpp" />
+    <ClCompile Include="components\Model.cpp" />
     <ClCompile Include="components\Transform.cpp" />
     <ClCompile Include="ConfigReadWriteFactory.cpp" />
     <ClCompile Include="ConfigReadWriteJSON.cpp" />
     <ClCompile Include="events\Event.cpp" />
-    <ClCompile Include="events\EventManager.cpp" />
-    <ClCompile Include="events\KeyCommand.cpp" />
     <ClCompile Include="events\KeyEvent.cpp" />
-    <ClCompile Include="events\Listener.cpp" />
+    <ClCompile Include="events\KeyWrapper.cpp" />
     <ClCompile Include="openglerrors.cpp" />
     <ClCompile Include="ParserJson.cpp" />
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="scene\Scene.cpp" />
     <ClCompile Include="SceneParserJSON.cpp" />
+    <ClCompile Include="scene\SceneView.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

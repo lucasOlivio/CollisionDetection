@@ -1,4 +1,4 @@
-#include "openglerrors.h"
+#include "common/openglerrors.h"
 #include <string>
 
 void GLAPIENTRY MessageCallback(GLenum source,

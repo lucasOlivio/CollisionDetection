@@ -1,31 +1,32 @@
 #include "Engine.h"
+#include "scene/Scene.h"
 #include "ConfigReadWriteFactory.h"
+#include "events/KeyWrapper.h"
+#include "common/utils.h"
+
+// TODO: Map all data used by the other classes from the scene
+// to pass only the needed data and decouple all from scene
 
 Engine::Engine()
 {
+	this->m_pRenderer = nullptr;
+	this->m_pEditor = nullptr;
+
 	this->m_isInitialized = false;
-	this->m_shaderProgramName = "";
+	this->m_isRunning = false;
 
-	this->m_pShaderManager = nullptr;
-	this->m_pEventManager = nullptr;
-
-	this->m_pModelSystem = nullptr;
-	this->m_pTransformSystem = nullptr;
-	this->m_pWindowSystem = nullptr;
-	this->m_pCameraSystem = nullptr;
+	this->m_pKeyEvent = nullptr;
 
 	this->m_pScene = nullptr;
+	this->m_pSceneView = nullptr;
 }
 
 Engine::~Engine()
 {
-	delete this->m_pShaderManager;
-	delete this->m_pEventManager;
-	delete this->m_pModelSystem;
-	delete this->m_pTransformSystem;
-	delete this->m_pWindowSystem;
-	delete this->m_pCameraSystem;
+	delete this->m_pRenderer;
+	delete this->m_pEditor;
 	delete this->m_pScene;
+	delete this->m_pSceneView;
 }
 
 bool Engine::Initialize(const std::string& sceneName)
@@ -38,7 +39,8 @@ bool Engine::Initialize(const std::string& sceneName)
 
 	printf("Initializing creation of scene '%s'\n", sceneName.c_str());
 
-	this->m_pScene = new engine::Scene();
+	this->m_pScene = new Scene();
+	this->m_pSceneView = new SceneView(this->m_pScene);
 	iConfigReadWrite* pConfigrw = ConfigReadWriteFactory::CreateConfigReadWrite("json");
 
 	// Load all database files
@@ -47,7 +49,7 @@ bool Engine::Initialize(const std::string& sceneName)
 	std::string sceneFilePath = baseConfigsPath + sceneName + ".json";
 	std::string baseShadersPath = "assets/shaders/";
 	std::string baseModelPath = "assets/models/";
-	this->m_shaderProgramName = "Shader01";
+	std::string shaderProgramName = "Shader01";
 	uint windowWidth = 1080;
 	uint windowHeight = 720;
 	std::string windowName = sceneName;
@@ -57,51 +59,33 @@ bool Engine::Initialize(const std::string& sceneName)
 	bool isSceneLoaded = pConfigrw->ReadScene(sceneFilePath, this->m_pScene);
 	if (!isSceneLoaded)
 	{
-		printf("Error loading scene data!\n");
+		CheckEngineError("Scene loading");
 		return false;
 	}
 
-	delete pConfigrw;
-
-	printf("Creating systems...\n");
-	// Rendering & components
-	this->m_pShaderManager = new ShaderManager(baseShadersPath);
-	this->m_pModelSystem = new ModelSystem(this->m_pShaderManager);
-	this->m_pWindowSystem = new WindowSystem(this->m_pShaderManager);
-	this->m_pCameraSystem = new CameraSystem(this->m_pShaderManager);
-	this->m_pTransformSystem = new TransformSystem(this->m_pShaderManager);
+	delete pConfigrw; // Used only to load all configs
 
 	// Events
-	this->m_pEventManager = EventManager::GetInstance();
-	this->m_pKeyEvent = new KeyEvent(this->m_pEventManager);
-	KeyCommand::SetKeyEvent(this->m_pKeyEvent);
+	this->m_pKeyEvent = new KeyEvent();
+	KeyWrapper::SetKeyEvent(this->m_pKeyEvent);
 
-	printf("Initializing rendering api...\n");
-	bool isWindowSystemInitialized = this->m_pWindowSystem->Initialize(windowWidth, windowHeight, windowName, KeyCommand::KeyCallback);
-	if (!isWindowSystemInitialized)
-	{
-		printf("Error initializing Window system!\n"); // TODO: Remove error handling repetition
-		return false;
-	}
-
-	printf("Creating shaders...\n");
-	// Creates main shader program
-	bool isShaderCreated = this->m_pShaderManager->AddShaderProgram(this->m_shaderProgramName);
-	if (!isShaderCreated)
-	{
-		printf("Error creating shader program!\n"); // TODO: Remove error handling repetition
-		return false;
-	}
-	this->m_pShaderManager->UseShaderProgram(this->m_shaderProgramName);
+	printf("Creating systems...\n");
+	this->m_pRenderer = new Renderer();
+	this->m_pEditor = new Editor(this->m_pKeyEvent, this->m_pSceneView);
 
 	printf("Initializing systems...\n");
 	// Initializes all systems
-	bool isModelSystemInitialized = this->m_pModelSystem->Initialize(baseModelPath, 
-																	 this->m_shaderProgramName, 
-																	 this->m_pScene);
-	if (!isModelSystemInitialized)
+	bool isERInitialized = this->m_pRenderer->Initialize(baseShadersPath,
+														 baseModelPath,
+														 shaderProgramName,
+														 windowWidth,
+														 windowHeight,
+														 windowName,
+														 KeyWrapper::KeyCallback,
+														 this->m_pSceneView);
+	if (!isERInitialized)
 	{
-		printf("Error initializing Model system!\n"); // TODO: Remove error handling repetition
+		CheckEngineError("Engine renderer initializing");
 		return false;
 	}
 
@@ -114,33 +98,39 @@ bool Engine::Initialize(const std::string& sceneName)
 
 void Engine::Destroy()
 {
-	this->m_pModelSystem->Destroy(this->m_pScene);
-	this->m_pWindowSystem->Destroy();
+	if (!this->m_isInitialized)
+	{
+		return;
+	}
+
+	this->m_pRenderer->Destroy();
+	this->m_isInitialized = false;
+
 	return;
 }
 
 void Engine::Update()
 {
-	this->m_pWindowSystem->NewFrame(this->m_shaderProgramName);
+	if (!this->m_isInitialized)
+	{
+		return;
+	}
+
+	this->m_pRenderer->NewFrame();
 
 	for (EntityID entityID = 0; entityID < this->m_pScene->GetNumEntities(); entityID++)
 	{
-		this->m_pTransformSystem->UpdateUL(entityID, this->m_pScene, this->m_shaderProgramName);
-		this->m_pModelSystem->UpdateUL(entityID, this->m_pScene, this->m_shaderProgramName);
-		this->m_pWindowSystem->UpdateUL(this->m_shaderProgramName);
-		this->m_pCameraSystem->UpdateUL(this->m_pScene, this->m_shaderProgramName);
-
-		this->m_pModelSystem->Render(entityID, this->m_pScene, this->m_shaderProgramName);
+		this->m_pRenderer->DrawModel(entityID);
 	}
 
-	this->m_pWindowSystem->EndFrame();
-
-	this->m_isRunning &= !this->m_pWindowSystem->WindowShouldClose();
+	this->m_pRenderer->EndFrame();
 }
 
 bool Engine::IsRunning()
 {
-	if (this->m_isRunning)
+	if (this->m_isRunning
+		&& this->m_pRenderer->IsRunning()
+		&& this->m_pEditor->IsRunning())
 	{
 		return true;
 	}

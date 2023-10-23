@@ -1,26 +1,32 @@
 #include "events/Event.h"
-#include "events/EventManager.h"
-
-Event::Event(EventManager* pManager)
-	: m_pEventManager(pManager)
-{
-}
 
 Event::~Event()
 {
 }
 
-void Event::Notify(Event* pEvent)
+void Event::Notify(iEvent* pEvent)
 {
-	this->m_pEventManager->Notify(this);
+	// Notify all listeners that was a change
+	for (iListener* listener : this->m_pListeners)
+	{
+		listener->Notify(this);
+	}
 }
 
-void Event::Attach(Listener* pListener)
+void Event::Attach(iListener* pListener)
 {
-	this->m_pEventManager->Subscribe(this, pListener);
+	this->m_pListeners.push_back(pListener);
 }
 
-void Event::Dettach(Listener* pListener)
+void Event::Dettach(iListener* pListener)
 {
-	this->m_pEventManager->Unsubscribe(this, pListener);
+	// Find the iterator to the element you want to remove
+	auto it = std::find(this->m_pListeners.begin(), this->m_pListeners.end(), pListener);
+
+	// Check if the element was found before erasing it
+	if (it != this->m_pListeners.end()) {
+		this->m_pListeners.erase(it); // Remove the element
+	}
+
+	return;
 }
