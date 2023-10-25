@@ -29,7 +29,7 @@ void CameraComponent::SetParameter(sParameterInfo& parameterIn)
         this->upVector = parameterIn.parameterVec3Value;
     }
     else if (parameterIn.parameterName == "isActive") {
-        this->isActive = parameterIn.parameterIntValue;
+        this->isActive = parameterIn.parameterBoolValue;
     }
 
     return;

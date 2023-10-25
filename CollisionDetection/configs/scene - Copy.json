@@ -2,9 +2,9 @@
     {
         "camera": {
             "cameraEye": [
-                10.0,
-                0.0,
-                0.0
+                5.0,
+                5.5,
+                48.599998474121094
             ],
             "cameraTarget": [
                 0.0,
@@ -20,33 +20,220 @@
         }
     },
     {
+        "collision": {
+            "shape": 1,
+            "radius": 0.5
+        },
+        "force": {
+            "inverseMass": 0.150000000298023224,
+            "acceleration": [
+                1.0,
+                -1.7999999523162842,
+                0.0
+            ],
+            "velocity": [
+                0.0,
+                -0.10000000149011612,
+                0.0
+            ]
+        },
         "model": {
             "name": "sphere.ply",
             "friendlyName": "ball1",
             "isWireframe": false,
-            "doNotLight": true
+            "doNotLight": false
         },
-        "transform": {  
+        "transform": {
             "position": [
-                6.75,
-                0.0,
-                0.0,
-                0.0
+                -3.799999952316284,
+                3.5999999046325684,
+                1.7000000476837158
             ],
-            "scale": 0.4,
+            "scale": 0.5,
             "orientation": [
                 0.0,
                 -0.0,
                 0.0
             ]
+        }
+    },
+    {
+        "collision": {
+            "shape": 1,
+            "radius": 0.5
         },
+        "force": {
+            "inverseMass": 0.150000000298023224,
+            "acceleration": [
+                -1.0,
+                -1.7999999523162842,
+                0.0
+            ],
+            "velocity": [
+                0.0,
+                -0.10000000149011612,
+                0.0
+            ]
+        },
+        "model": {
+            "name": "sphere.ply",
+            "friendlyName": "ball2",
+            "isWireframe": false,
+            "doNotLight": false
+        },
+        "transform": {
+            "position": [
+                13.800000190734863,
+                3.5999999046325684,
+                1.7000000476837158
+            ],
+            "scale": 0.5,
+            "orientation": [
+                0.0,
+                -0.0,
+                0.0
+            ]
+        }
+    },
+    {
+        "collision": {
+            "shape": 1,
+            "radius": 0.5
+        },
+        "force": {
+            "inverseMass": 0.150000000298023224,
+            "acceleration": [
+                1.0,
+                -1.7999999523162842,
+                0.0
+            ],
+            "velocity": [
+                0.0,
+                -0.10000000149011612,
+                0.0
+            ]
+        },
+        "model": {
+            "name": "sphere.ply",
+            "friendlyName": "ball3",
+            "isWireframe": false,
+            "doNotLight": false
+        },
+        "transform": {
+            "position": [
+                3.799999952316284,
+                3.5999999046325684,
+                1.7000000476837158
+            ],
+            "scale": 0.5,
+            "orientation": [
+                0.0,
+                -0.0,
+                0.0
+            ]
+        }
+    },
+    {
+        "collision": {
+            "shape": 1,
+            "radius": 0.5
+        },
+        "force": {
+            "inverseMass": 0.150000000298023224,
+            "acceleration": [
+                -1.0,
+                -1.7999999523162842,
+                0.0
+            ],
+            "velocity": [
+                0.0,
+                -0.10000000149011612,
+                0.0
+            ]
+        },
+        "model": {
+            "name": "sphere.ply",
+            "friendlyName": "ball4",
+            "isWireframe": false,
+            "doNotLight": false
+        },
+        "transform": {
+            "position": [
+                9.100000381469727,
+                3.5999999046325684,
+                1.7000000476837158
+            ],
+            "scale": 0.5,
+            "orientation": [
+                0.0,
+                -0.0,
+                0.0
+            ]
+        }
+    },
+    {
+        "collision": {
+            "shape": 6,
+            "meshName": "terrain.ply"
+        },
+        "model": {
+            "name": "terrain.ply",
+            "friendlyName": "ground",
+            "isWireframe": false,
+            "doNotLight": false
+        },
+        "transform": {
+            "position": [
+                3.0,
+                -18.0,
+                0.0
+            ],
+            "scale": 6.199999809265137,
+            "orientation": [
+                -1.5,
+                0.7168200016021729,
+                0.0
+            ]
+        }
+    },
+    {
         "light": {
-            "position": [6.75, 0.0, 0.0, 0.0],
-            "diffuse": [255, 255, 255, 255],
-            "specular": [1.0, 1.0, 1.0, 1.0],
-            "atten": [0.0, 0.000516323, 0.000846713, 1.0],
-            "direction": [-1, -9, 7, 1],
-            "params": [1, 1, 1, 1],
+            "position": [
+                3.0,
+                5.0,
+                0.30000001192092896,
+                0.0
+            ],
+            "diffuse": [
+                1.0,
+                1.0,
+                1.0,
+                0.5
+            ],
+            "specular": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "atten": [
+                1.0,
+                2.9000000953674316,
+                0.0,
+                1.0
+            ],
+            "direction": [
+                0.0,
+                -1.0,
+                0.0,
+                1.0
+            ],
+            "params": [
+                2.0,
+                0.699999988079071,
+                0.6000000238418579,
+                1.0
+            ],
             "status": true
         }
     }

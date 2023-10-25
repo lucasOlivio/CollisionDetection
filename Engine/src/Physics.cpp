@@ -283,16 +283,6 @@ bool Physics::SphereTriMeshIndirect_Test(sSphere* pSphere, TransformComponent* p
 		vertsWorld[1] = (matModel * glm::vec4(verts[1], 1.0f));
 		vertsWorld[2] = (matModel * glm::vec4(verts[2], 1.0f));
 
-		// First we check if the sphere is in the triangle area
-		bool isInArea = myutils::IsInsideCircumcircle(vertsWorld[0], vertsWorld[1], vertsWorld[2], 
-														pTransformSphere->GetPosition());
-
-		if (!isInArea)
-		{
-			// Not close, so no need to check closest point
-			continue;
-		}
-
 		// Getting closest point in triangle
 		glm::vec3 thisTriangleClosestPoint = myutils::ClosestPtPointTriangle(pTransformSphere->GetPosition(),
 												vertsWorld[0], vertsWorld[1], vertsWorld[2]);

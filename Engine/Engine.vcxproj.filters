@@ -264,6 +264,8 @@
     <ClInclude Include="include\events\CollisionEvent.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="include\scene\SceneView.tpp" />
+    <None Include="include\scene\SceneView.tpp">
+      <Filter>EngineUtilities\Scenes</Filter>
+    </None>
   </ItemGroup>
 </Project>
