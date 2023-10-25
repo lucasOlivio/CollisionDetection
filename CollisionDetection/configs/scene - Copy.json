@@ -1,0 +1,53 @@
+[
+    {
+        "camera": {
+            "cameraEye": [
+                10.0,
+                0.0,
+                0.0
+            ],
+            "cameraTarget": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "upVector": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "isActive": true
+        }
+    },
+    {
+        "model": {
+            "name": "sphere.ply",
+            "friendlyName": "ball1",
+            "isWireframe": false,
+            "doNotLight": true
+        },
+        "transform": {  
+            "position": [
+                6.75,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": 0.4,
+            "orientation": [
+                0.0,
+                -0.0,
+                0.0
+            ]
+        },
+        "light": {
+            "position": [6.75, 0.0, 0.0, 0.0],
+            "diffuse": [255, 255, 255, 255],
+            "specular": [1.0, 1.0, 1.0, 1.0],
+            "atten": [0.0, 0.000516323, 0.000846713, 1.0],
+            "direction": [-1, -9, 7, 1],
+            "params": [1, 1, 1, 1],
+            "status": true
+        }
+    }
+]

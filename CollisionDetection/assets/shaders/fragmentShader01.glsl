@@ -157,7 +157,7 @@ vec4 calculateLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal,
 		// The location of the vertex in the world to your eye
 		vec3 eyeVector = normalize(eyeLocation.xyz - vertexWorldPos.xyz);
 
-		// To simplify, we are NOT using the light specular value, just the object’s.
+		// To simplify, we are NOT using the light specular value, just the objectâ€™s.
 		float objectSpecularPower = vertexSpecular.w; 
 		
 //		lightSpecularContrib = pow( max(0.0f, dot( eyeVector, reflectVector) ), objectSpecularPower )

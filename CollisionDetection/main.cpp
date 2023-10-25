@@ -1,5 +1,4 @@
 #include "Engine.h"
-#include "common/constants.h"
 #include <iostream>
 
 int main(int argc, char* argv[])
@@ -7,10 +6,6 @@ int main(int argc, char* argv[])
     std::string sceneName = "";
     if (argc == 1) 
     {
-        if (ndebug) {
-            printf("Error: Must pass the scene to be loaded as argument!\n");
-            exit(EXIT_FAILURE);
-        }
         sceneName = "scene";
     }
     else
@@ -25,12 +20,9 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    while (myEngine.IsRunning())
-    {
-        myEngine.Update();
-    }
+    myEngine.Run();
 
-    myEngine.Destroy();
+    myEngine.Exit();
 
     return 0;
 }
