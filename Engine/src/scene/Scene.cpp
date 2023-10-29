@@ -1,7 +1,10 @@
 #include "scene/Scene.h"
+#include "components.h"
 
-Scene::Scene()
+Scene::Scene(iEvent* pKeyEvents)
 {
+    this->m_isPlaying = false;
+    this->m_pKeyEvents = pKeyEvents;
     this->m_numEntities = 0;
     this->m_components.clear();
 }
@@ -15,6 +18,10 @@ void Scene::Clear()
 {
     for (auto& pairComponent : this->m_components) {
         for (auto& pairEntityComp : pairComponent.second) {
+            if (pairComponent.first == "player")
+            {
+                this->m_pKeyEvents->Dettach((PlayerComponent*)pairEntityComp.second);
+            }
             delete pairEntityComp.second;
         }
         pairComponent.second.clear();
@@ -47,7 +54,7 @@ void Scene::DeleteEntity(EntityID entityID)
     }
 }
 
-void Scene::GetMapComponents(std::string componentName, std::map<EntityID, iComponent*>& componentsOut)
+bool Scene::GetMapComponents(std::string componentName, std::map<EntityID, iComponent*>& componentsOut)
 {
     std::map<std::string,
         std::map<EntityID, iComponent*>>::iterator it;
@@ -56,11 +63,11 @@ void Scene::GetMapComponents(std::string componentName, std::map<EntityID, iComp
     if (it == this->m_components.end())
     {
         // No components of this type
-        return;
+        return false;
     }
 
     componentsOut = it->second;
-    return;
+    return true;
 }
 
 iComponent* Scene::GetComponent(EntityID entityID, std::string componentName)
@@ -94,6 +101,14 @@ void Scene::SetComponent(EntityID entityID, std::string componentName, iComponen
 
     // Now replace with the new component
     this->m_components[componentName][entityID] = componentIn;
+    componentIn->SetGameplayDirector(this);
+
+    if (componentName == "player")
+    {
+        PlayerComponent* pPlayer = (PlayerComponent*)componentIn;
+        this->m_pKeyEvents->Attach(pPlayer);
+        pPlayer->SetPlaying(this->IsPlaying());
+    }
 
     return;
 }
@@ -120,4 +135,35 @@ std::vector<sComponentInfo> Scene::GetComponentsInfo(EntityID entityID)
     }
 
     return componentsInfo;
+}
+
+void Scene::SendAction(std::string action, EntityID entityID, sParameterInfo& parameterIn)
+{
+    if (action == "rotate")
+    {
+        TransformComponent* pTransform = (TransformComponent*)this->GetComponent(entityID, "transform");
+        if (pTransform)
+        {
+            pTransform->AdjustOrientation(parameterIn.parameterVec3Value);
+        }
+    }
+
+    return;
+}
+
+bool Scene::IsPlaying()
+{
+    if (this->m_isPlaying)
+    {
+        return true;
+    } 
+    else
+    {
+        return false;
+    }
+}
+
+void Scene::SetPlaying(bool isPlaying)
+{
+    this->m_isPlaying = isPlaying;
 }

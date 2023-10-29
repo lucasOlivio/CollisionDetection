@@ -1,5 +1,10 @@
 #include "EngineRenderer/Renderer.h"
 #include "common/utils.h"
+#include "components/Animation.h"
+#include "components/Model.h"
+#include "components/Transform.h"
+#include "components/Tiling.h"
+#include "components/Light.h"
 
 Renderer::Renderer()
 {
@@ -13,6 +18,8 @@ Renderer::Renderer()
 	this->m_pCameraSystem = nullptr;
 	this->m_pModelSystem = nullptr;
 	this->m_pLightSystem = nullptr;
+
+	this->m_pSceneView = nullptr;
 }
 
 Renderer::~Renderer()
@@ -38,6 +45,8 @@ bool Renderer::Initialize(std::string baseShadersPath,
 	{
 		return true;
 	}
+
+	this->m_pSceneView = pSceneView;
 
 	printf("Initializing engine renderer...\n");
 	this->m_pShaderManager = new ShaderManager(baseShadersPath);
@@ -119,7 +128,7 @@ void Renderer::NewFrame()
 	return;
 }
 
-void Renderer::DrawModel(EntityID entityID)
+void Renderer::DrawModel(EntityID entityID, double deltaTime)
 {
 	if (!this->m_isInitialized)
 	{
@@ -129,9 +138,68 @@ void Renderer::DrawModel(EntityID entityID)
 	this->m_pWindowSystem->UpdateUL(this->m_currShaderID);
 	this->m_pCameraSystem->UpdateUL(this->m_currShaderID);
 
-	this->m_pModelSystem->UpdateUL(entityID, this->m_currShaderID);
+	// TODO: Remove code duplication for all these components
+	TilingComponent* pTiling = this->m_pSceneView->GetComponent<TilingComponent>(entityID, "tiling");
+	TransformComponent* pTransform = this->m_pSceneView->GetComponent<TransformComponent>(entityID, "transform");
+	AnimationComponent* pAnimation = this->m_pSceneView->GetComponent<AnimationComponent>(entityID, "animation");
+	ModelComponent* pModel = this->m_pSceneView->GetComponent<ModelComponent>(entityID, "model");
+	LightComponent* pLight = this->m_pSceneView->GetComponent<LightComponent>(entityID, "light");
 
-	this->m_pModelSystem->Render(entityID);
+	// Default we only draw 1 time in each axis
+	glm::vec3 axis = glm::vec3(1.0, 1.0, 1.0);
+	glm::vec3 offset = glm::vec3(0.0, 0.0, 0.0);
+	// If has tiling then we draw X times per axis based on the offset
+	if (pTiling)
+	{
+		axis = pTiling->GetAxis();
+		offset = pTiling->GetOffset();
+	}
+
+	if (pAnimation)
+	{
+		pAnimation->Update(deltaTime, this->m_currShaderID, this->m_pShaderManager);
+	}
+
+	if (pTransform)
+	{
+		pTransform->SetFramePosition();
+	}
+
+	// Now go for each axis tiling to draw adding the offset
+	for (int x = 0; x < axis[0]; x++)
+	{
+		for (int y = 0; y < axis[1]; y++)
+		{
+			for (int z = 0; z < axis[2]; z++)
+			{
+				if (pTransform)
+				{
+					if (pLight)
+					{
+						pTransform->SetPosition(pLight->GetPosition() + pLight->GetDirection());
+					}
+					glm::vec3 delta = offset;
+					delta.x = offset.x * x;
+					delta.y = offset.y * y;
+					delta.z = offset.z * z;
+					pTransform->Move(delta);
+					pTransform->Update(this->m_currShaderID, this->m_pShaderManager);
+				}
+
+				if (pModel)
+				{
+					pModel->Update(deltaTime, this->m_currShaderID, this->m_pShaderManager);
+					pModel->Render();
+				}
+
+				// Come back to initial frame place
+				if (pTransform)
+				{
+					pTransform->ResetFramePosition();
+				}
+			}
+		}
+	}
 
 	return;
 }

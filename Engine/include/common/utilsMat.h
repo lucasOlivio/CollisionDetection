@@ -25,4 +25,7 @@ namespace myutils
 
     // Calculate new velocity response correcting with the restitution
     glm::vec3 ResolveVelocity(glm::vec3 velocity, glm::vec3 reflectionNormal, float restitution);
+
+    // Calculate sin wave based on time
+    float CalculateSinWave(float currentTime, float amplitude, float frequency, float phaseOffset);
 }

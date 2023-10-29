@@ -174,6 +174,46 @@ bool ParserJSON::SetVec3(rapidjson::Value& jsonObject,
     return true;
 }
 
+bool ParserJSON::GetVecStr(rapidjson::Value& jsonObject, std::vector<std::string>& valueOut)
+{
+    using namespace rapidjson;
+
+    if (jsonObject.IsArray()) {
+        for (SizeType i = 0; i < jsonObject.Size(); i++) {
+            if (!jsonObject[i].IsString()) {
+                return false;
+            }
+        }
+
+
+        for (SizeType i = 0; i < jsonObject.Size(); i++) {
+            valueOut.push_back(jsonObject[i].GetString());
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool ParserJSON::SetVecStr(rapidjson::Value& jsonObject,
+                           const std::vector<std::string>& valueIn,
+                           rapidjson::Document::AllocatorType& allocator)
+{
+    using namespace rapidjson;
+    using namespace myutils;
+
+    jsonObject.SetArray();
+
+    for (SizeType i = 0; i < valueIn.size(); i++) {
+        Value strVal;
+        strVal.SetString(valueIn[i].c_str(), allocator);
+        jsonObject.PushBack(strVal, allocator);
+    }
+
+    return true;
+}
+
 bool ParserJSON::SetValue(rapidjson::Value& jsonObject,
                                    sParameterInfo& valueIn,
                                    rapidjson::Document::AllocatorType& allocator)
@@ -207,6 +247,11 @@ bool ParserJSON::SetValue(rapidjson::Value& jsonObject,
     if (valueIn.parameterType == "vec4")
     {
         this->SetVec4(jsonObject, valueIn.parameterVec4Value, allocator);
+        return true;
+    }
+    if (valueIn.parameterType == "vecStr")
+    {
+        this->SetVecStr(jsonObject, valueIn.parameterVecStrValue, allocator);
         return true;
     }
 
@@ -245,6 +290,11 @@ bool ParserJSON::GetValue(rapidjson::Value& jsonObject, sParameterInfo& valueOut
     if (this->GetVec4(jsonObject, valueOut.parameterVec4Value))
     {
         valueOut.parameterType = "vec4";
+        return true;
+    }
+    if (this->GetVecStr(jsonObject, valueOut.parameterVecStrValue))
+    {
+        valueOut.parameterType = "vecStr";
         return true;
     }
 

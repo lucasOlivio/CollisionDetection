@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene/iScene.h"
+#include "scene/Scene.h"
 #include "scene/SceneView.h"
 #include "scene/iSceneDirector.h"
 #include "EngineRenderer/Renderer.h"
@@ -27,7 +27,7 @@ private:
 
 	// TODO: Pass all other systems need to the "scene mediator" 
 	// (which should be the Engine itself I think)
-	iScene* m_pScene;
+	Scene* m_pScene;
 	SceneView* m_pSceneView;
 public:
 	// ctors & dtors

@@ -2,6 +2,7 @@
 #include "common/utils.h"
 #include "components/Transform.h"
 #include "Components/Force.h"
+#include <cmath>
 
 namespace myutils
 {
@@ -150,5 +151,13 @@ namespace myutils
     {
         float newSpeed = glm::length(velocity) * restitution;
         return reflectionNormal * newSpeed;
+    }
+
+    float CalculateSinWave(float currentTime, float amplitude, float frequency, float offset) {
+        // Calculate the sine value
+        const double PI = 3.14;
+        float sineValue = amplitude * sin(2 * PI * frequency * currentTime);
+
+        return offset - sineValue;
     }
 }

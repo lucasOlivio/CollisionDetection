@@ -98,3 +98,32 @@ void Component::AddCompParInfo(const std::string& name,
 
     return;
 }
+
+void Component::AddCompParInfo(const std::string& name,
+                                const std::string& type,
+                                const std::vector<std::string>& value,
+                                sComponentInfo& compInfoOut)
+{
+    sParameterInfo paramInfo;
+    paramInfo.parameterName = name;
+    paramInfo.parameterType = type;
+    paramInfo.parameterVecStrValue = value;
+    compInfoOut.componentParameters.push_back(paramInfo);
+
+    return;
+}
+
+EntityID Component::GetEntityID()
+{
+    return this->m_entityID;
+}
+
+void Component::SetEntityID(EntityID entityID)
+{
+    this->m_entityID = entityID;
+}
+
+void Component::SetGameplayDirector(iGameplayDirector* pGameplayDirector)
+{
+    this->m_pGameplayDirector = pGameplayDirector;
+}

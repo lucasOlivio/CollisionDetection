@@ -7,6 +7,7 @@
 class LightComponent : public Component
 {
 private:
+	std::string m_ulBasePath;
 
 	// Parameters uniform locations
 	GLint m_position_UL;
@@ -45,6 +46,9 @@ public:
 	void SetParams(glm::vec4 newParams);
 	void SetStatus(bool newStatus);
 
+	void SetLinearAtten(float value);
+	void ResetAtten();
+
 	virtual void GetInfo(sComponentInfo& compInfoOut);
 	virtual void SetParameter(sParameterInfo& parameterIn);
 
@@ -56,6 +60,7 @@ public:
 	glm::vec4 diffuse;   // Colour of the light (used for diffuse)
 	glm::vec4 specular;  // rgb = highlight colour, w = power
 	glm::vec4 atten;	 // x = constant, y = linear, z = quadratic, w = DistanceCutOff
+	glm::vec4 initialAtten;
 	glm::vec4 direction; // Spot, directional lights
 	glm::vec4 params;	 // x = Light::LIGHT_TYPE, y = inner angle, z = outer angle, w = TBD
 	bool status;	     // x = 0 for off, 1 for on

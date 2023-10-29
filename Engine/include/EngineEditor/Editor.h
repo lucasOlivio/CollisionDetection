@@ -13,6 +13,7 @@ class Editor : public iListener
 private:
 	int m_selectedEntity;
 	int m_selectedComponent;
+	int m_lastSelectedEntity;
 	int m_selectedParameter;
 	bool m_isRunning;
 	std::vector<sComponentInfo> m_vecCompInfos;
@@ -27,12 +28,14 @@ private:
 	void m_PrintParameter(std::string parName, glm::vec3 parValue);
 	void m_PrintParameter(std::string parName, glm::vec4 parValue);
 	void m_PrintParameter(std::string parName, bool parValue);
+	void m_PrintParameter(std::string parName, std::vector<std::string> parValue);
 
 	void m_ModifySelected(int& value, int orientation);
 	void m_ModifySelected(bool& value, int orientation);
 	void m_ModifySelected(float& value, int orientation);
 	void m_ModifySelected(glm::vec3& value, int orientation, int axis);
 	void m_ModifySelected(glm::vec4& value, int orientation, int axis);
+	void m_ModifySelectedCamera(glm::vec3& value, int orientation, int axis);
 public:
 	// ctors & dtors
 	Editor(KeyEvent* pKeyEvent, SceneView* pSceneView, iSceneDirector* pSceneDirector);
@@ -54,7 +57,7 @@ public:
 	// without editor needing to know about all
 	// 
 	// Actions to take based on key pressed
-	void KeyActions(int key, int scancode, int action, int mods);
+	void KeyActions(sKeyInfo keyInfo);
 
 	void ChangeSelected(int& selected, int orientation, int count);
 	void ChangeSelectedEntity(int orientation);

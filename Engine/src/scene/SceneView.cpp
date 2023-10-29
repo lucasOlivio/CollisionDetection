@@ -13,8 +13,15 @@ SceneView::~SceneView()
 
 void SceneView::First(std::string componentName)
 {
-	this->m_pScene->GetMapComponents(componentName, this->m_map);
-	this->m_currIterator = this->m_map.begin();
+	bool hasComponent = this->m_pScene->GetMapComponents(componentName, this->m_map);
+	if (hasComponent)
+	{
+		this->m_currIterator = this->m_map.begin();
+	}
+	else
+	{
+		this->m_currIterator = this->m_map.end();
+	}
 }
 
 void SceneView::Next()

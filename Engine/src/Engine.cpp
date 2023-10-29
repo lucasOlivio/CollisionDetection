@@ -49,9 +49,14 @@ bool Engine::Initialize(const std::string& sceneName)
 		return true;
 	}
 
+	// Events
+	this->m_pCollisionEvent = new CollisionEvent();
+	this->m_pKeyEvent = new KeyEvent();
+	KeyWrapper::SetKeyEvent(this->m_pKeyEvent);
+
 	printf("Initializing creation of scene '%s'\n", sceneName.c_str());
 
-	this->m_pScene = new Scene();
+	this->m_pScene = new Scene(this->m_pKeyEvent);
 	this->m_pSceneView = new SceneView(this->m_pScene);
 	iConfigReadWrite* pConfigrw = ConfigReadWriteFactory::CreateConfigReadWrite("json");
 
@@ -70,11 +75,6 @@ bool Engine::Initialize(const std::string& sceneName)
 	}
 
 	delete pConfigrw; // Used only to load all configs
-
-	// Events
-	this->m_pCollisionEvent = new CollisionEvent();
-	this->m_pKeyEvent = new KeyEvent();
-	KeyWrapper::SetKeyEvent(this->m_pKeyEvent);
 
 	printf("Creating systems...\n");
 	this->m_pRenderer = new Renderer();
@@ -124,7 +124,7 @@ void Engine::Run()
 		for (EntityID entityID = 0; entityID < this->m_pScene->GetNumEntities(); entityID++)
 		{
 			this->m_pPhysics->Update(entityID, fixedDeltaTime);
-			this->m_pRenderer->DrawModel(entityID);
+			this->m_pRenderer->DrawModel(entityID, fixedDeltaTime);
 		}
 
 		this->m_pRenderer->EndFrame();
@@ -193,6 +193,8 @@ void Engine::Exit()
 	delete this->m_pScene;
 	delete this->m_pSceneView;
 
+	delete this->m_pKeyEvent;
+
 	return;
 }
 
@@ -212,14 +214,15 @@ void Engine::ChangeMode()
 
 		this->m_pEditor->SetRunning(false);
 		this->m_pPhysics->SetRunning(true);
+		this->m_pScene->SetPlaying(true);
 
 		this->LoadScene();
 	}
 	else
 	{
-		// Entering editing mode
-		this->m_pPhysics->SetRunning(false);
 		this->m_pEditor->SetRunning(true);
+		this->m_pPhysics->SetRunning(false);
+		this->m_pScene->SetPlaying(false);
 
 		this->LoadScene();
 	}

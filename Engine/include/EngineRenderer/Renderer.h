@@ -21,6 +21,8 @@ private:
 	ModelSystem* m_pModelSystem;
 	LightSystem* m_pLightSystem;
 
+	SceneView* m_pSceneView;
+
 public:
 	// ctors & dtors
 	Renderer();
@@ -46,7 +48,7 @@ public:
 	// Clear frame, set shader and configure glfw for a new frame
 	void NewFrame();
 	// Update respectives UL and render model
-	void DrawModel(EntityID entityID);
+	void DrawModel(EntityID entityID, double deltaTime);
 	// Swap buffers and proccess glfw pool events
 	void EndFrame();
 

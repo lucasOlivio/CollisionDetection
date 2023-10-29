@@ -24,7 +24,7 @@ public:
 	virtual std::vector<sComponentInfo> GetComponentsInfo(EntityID entityID) = 0;
 
 	// Get the vector for the respective entities->component
-	virtual void GetMapComponents(std::string componentName,
+	virtual bool GetMapComponents(std::string componentName,
 								  std::map<EntityID, iComponent*>& componentsOut) = 0;
 
 	// Get or add a component to/from the scene entity

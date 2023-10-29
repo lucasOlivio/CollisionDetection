@@ -34,13 +34,14 @@ void LightComponent::SetupLight(GLint shaderProgramID, std::string ulBasePath)
 	{
 		ulBasePath += ".";
 	}
-	this->m_position_UL = glGetUniformLocation(shaderProgramID, (ulBasePath + "position").c_str());
-	this->m_diffuse_UL = glGetUniformLocation(shaderProgramID, (ulBasePath + "diffuse").c_str());
-	this->m_specular_UL = glGetUniformLocation(shaderProgramID, (ulBasePath + "specular").c_str());
-	this->m_atten_UL = glGetUniformLocation(shaderProgramID, (ulBasePath + "atten").c_str());
-	this->m_direction_UL = glGetUniformLocation(shaderProgramID, (ulBasePath + "direction").c_str());
-	this->m_params_UL = glGetUniformLocation(shaderProgramID, (ulBasePath + "params").c_str());
-	this->m_status_UL = glGetUniformLocation(shaderProgramID, (ulBasePath + "status").c_str());
+	this->m_ulBasePath = ulBasePath;
+	this->m_position_UL = glGetUniformLocation(shaderProgramID, (this->m_ulBasePath + "position").c_str());
+	this->m_diffuse_UL = glGetUniformLocation(shaderProgramID, (this->m_ulBasePath + "diffuse").c_str());
+	this->m_specular_UL = glGetUniformLocation(shaderProgramID, (this->m_ulBasePath + "specular").c_str());
+	this->m_atten_UL = glGetUniformLocation(shaderProgramID, (this->m_ulBasePath + "atten").c_str());
+	this->m_direction_UL = glGetUniformLocation(shaderProgramID, (this->m_ulBasePath + "direction").c_str());
+	this->m_params_UL = glGetUniformLocation(shaderProgramID, (this->m_ulBasePath + "params").c_str());
+	this->m_status_UL = glGetUniformLocation(shaderProgramID, (this->m_ulBasePath + "status").c_str());
 
 	glUniform4f(this->m_position_UL, this->position.x,
 		this->position.y, this->position.z,
@@ -199,6 +200,17 @@ void LightComponent::SetStatus(bool newStatus)
 	glUniform4f(this->m_status_UL, this->status, 0, 0, 0);
 }
 
+void LightComponent::SetLinearAtten(float value)
+{
+	this->atten[1] = value;
+	this->SetAtten(this->atten);
+}
+
+void LightComponent::ResetAtten()
+{
+	this->SetAtten(this->initialAtten);
+}
+
 void LightComponent::GetInfo(sComponentInfo& compInfoOut)
 {
 	using namespace myutils;
@@ -209,7 +221,7 @@ void LightComponent::GetInfo(sComponentInfo& compInfoOut)
 	this->AddCompParInfo("position", "vec4", this->position, compInfoOut);
 	this->AddCompParInfo("diffuse", "vec4", this->diffuse, compInfoOut);
 	this->AddCompParInfo("specular", "vec4", this->specular, compInfoOut);
-	this->AddCompParInfo("atten", "vec4", this->atten, compInfoOut);
+	this->AddCompParInfo("atten", "vec4", this->initialAtten, compInfoOut);
 	this->AddCompParInfo("direction", "vec4", this->direction, compInfoOut);
 	this->AddCompParInfo("params", "vec4", this->params, compInfoOut);
 	this->AddCompParInfo("status", "bool", this->status, compInfoOut);
@@ -230,6 +242,7 @@ void LightComponent::SetParameter(sParameterInfo& parameterIn)
 	}
 	else if (parameterIn.parameterName == "atten") {
 		this->SetAtten(parameterIn.parameterVec4Value);
+		this->initialAtten = parameterIn.parameterVec4Value;
 	}
 	else if (parameterIn.parameterName == "direction") {
 		this->SetDirection(parameterIn.parameterVec4Value);

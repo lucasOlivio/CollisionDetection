@@ -36,6 +36,11 @@ public:
 				 const glm::vec4& valueIn,
 				 rapidjson::Document::AllocatorType& allocator);
 
+	bool GetVecStr(rapidjson::Value& jsonObject, std::vector<std::string>& valueOut);
+	bool SetVecStr(rapidjson::Value& jsonObject,
+				   const std::vector<std::string>& valueIn,
+				   rapidjson::Document::AllocatorType& allocator);
+
 	bool SetValue(rapidjson::Value& jsonObject,
 				  sParameterInfo& valueIn, 
 				  rapidjson::Document::AllocatorType& allocator);

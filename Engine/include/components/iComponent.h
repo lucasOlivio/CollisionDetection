@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/types.h"
 #include <vector>
 #include <string>
 #include <glm/vec3.hpp>
@@ -17,6 +18,7 @@ struct sParameterInfo
 	float parameterFloatValue;
 	glm::vec3 parameterVec3Value;
 	glm::vec4 parameterVec4Value;
+	std::vector<std::string> parameterVecStrValue;
 };
 
 struct sComponentInfo
@@ -25,10 +27,16 @@ struct sComponentInfo
 	std::vector<sParameterInfo> componentParameters;
 };
 
+class iGameplayDirector;
+
 class iComponent
 {
 public:
 	virtual ~iComponent() {};
+
+	virtual EntityID GetEntityID() = 0;
+	virtual void SetEntityID(EntityID entityID) = 0;
+	virtual void SetGameplayDirector(iGameplayDirector* pGameplayDirector) = 0;
 
 	virtual void GetInfo(sComponentInfo& compInfoOut) = 0;
 	virtual void SetParameter(sParameterInfo& parameterIn) = 0;

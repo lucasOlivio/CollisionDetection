@@ -4,7 +4,7 @@
 #include "scene/SceneParserJSON.h"
 #include "common/ParserJSON.h"
 #include "components.h" // TODO: Get rid of this
-#include "components/ComponentFactory.h"
+#include "components/ComponentBuilder.h"
 #include "common/utils.h"
 #include <sstream>
 #include <iomanip>
@@ -30,6 +30,7 @@ bool SceneParserJSON::ParseFromJsonObj(rapidjson::Value& jsonObject, iScene* pSc
     }
 
     ParserJSON parser = ParserJSON();
+    ComponentBuilder componentBuilder = ComponentBuilder(pSceneOut);
 
     // TODO: Redo here so we don't need to edit everytime there is a new component.
     // Components should know how to serialize and deserialize themselves
@@ -49,10 +50,12 @@ bool SceneParserJSON::ParseFromJsonObj(rapidjson::Value& jsonObject, iScene* pSc
             return false;
         }
 
-        // Inside EntityIDiterate over each component
+        // Inside EntityID iterate over each component
         for (Value::ConstMemberIterator entityMember = entityObject.MemberBegin(); entityMember != entityObject.MemberEnd(); ++entityMember)
         {
-            std::string componentName = entityMember->name.GetString();
+            sComponentInfo componentInfo = sComponentInfo();
+            componentInfo.componentName = entityMember->name.GetString();
+
             Value& componentObject = jsonObject[entityIndex][entityMember->name];
             bool isValid = componentObject.IsObject();
             if (!isValid)
@@ -60,19 +63,6 @@ bool SceneParserJSON::ParseFromJsonObj(rapidjson::Value& jsonObject, iScene* pSc
                 printf("Error: Entity #%d not valid, expected object of components!\n", entityIndex);
                 return false;
             }
-
-            // TODO: Generic way to parse components parameters to remove these horrible dynamic casting
-            // 
-            // For every component we create it on the scene them update using the parameters info common structure
-            iComponent* newComponent = ComponentFactory::CreateComponent(componentName);
-            if (!newComponent)
-            {
-                std::string errorMsg = "Component '" + componentName + "' from entity #" + std::to_string(entityID) + " doesn't exists";
-                CheckEngineError(errorMsg.c_str());
-                return false;
-            }
-
-            pSceneOut->SetComponent(entityID, componentName, newComponent);
 
             sParameterInfo paramInfo;
             // Inside component go over each parameter, parsing the parameterInfo and sending to component
@@ -85,12 +75,22 @@ bool SceneParserJSON::ParseFromJsonObj(rapidjson::Value& jsonObject, iScene* pSc
 
                 if (!isParsed)
                 {
-                    std::string errorMsg = "Error parsing parameter '" + paramInfo.parameterName + "' from component '" + componentName + "' entity #" + std::to_string(entityID);
+                    std::string errorMsg = "Error parsing parameter '" + paramInfo.parameterName + "' from component '" +
+                                            componentInfo.componentName + "' entity #" + std::to_string(entityID);
                     CheckEngineError(errorMsg.c_str());
                     return false;
                 }
 
-                newComponent->SetParameter(paramInfo);
+                componentInfo.componentParameters.push_back(paramInfo);
+            }
+
+            // For every component we create it on the scene them update using the parameters info common structure
+            iComponent* newComponent = componentBuilder.BuildComponent(componentInfo, entityID);
+            if (!newComponent)
+            {
+                std::string errorMsg = "Component '" + componentInfo.componentName + "' from entity #" + std::to_string(entityID) + " doesn't exists";
+                CheckEngineError(errorMsg.c_str());
+                return false;
             }
         }
     }

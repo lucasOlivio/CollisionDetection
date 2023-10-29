@@ -21,8 +21,4 @@ public:
 	bool LoadModels(int shaderID);
 	bool LoadModels(std::string basePath, int shaderID);
 	void Destroy();
-
-	// Called for each entity each frame
-	void UpdateUL(EntityID entityID, int shaderID);
-	void Render(EntityID entityID);
 };

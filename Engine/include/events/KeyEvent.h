@@ -2,22 +2,24 @@
 
 #include "Event.h"
 
+struct sKeyInfo
+{
+	int pressedKey;
+	int scanCode;
+	int action;
+	int mods;
+};
+
 // Key callback events triggered by glfw on window
 class KeyEvent : public Event
 {
 private:
-	int m_pressedKey;
-	int m_scanCode;
-	int m_action;
-	int m_mods;
+	sKeyInfo m_sKeyInfo;
 public:
 	KeyEvent();
 	virtual ~KeyEvent();
 
 	void UpdateKey(int key, int scancode, int action, int mods);
 
-	int GetKeyCallback();
-	int GetScanCode();
-	int GetAction();
-	int GetMods();
+	sKeyInfo GetKeyInfo();
 };
