@@ -10,9 +10,11 @@ void ModelComponent::GetInfo(sComponentInfo& compInfoOut)
 	compInfoOut.componentParameters.clear();
 
 	this->AddCompParInfo("name", "string", this->name, compInfoOut);
+    this->AddCompParInfo("collisionName", "string", this->collisionName, compInfoOut);
 	this->AddCompParInfo("friendlyName", "string", this->friendlyName, compInfoOut);
 	this->AddCompParInfo("isWireframe", "bool", this->isWireframe, compInfoOut);
 	this->AddCompParInfo("doNotLight", "bool", this->doNotLight, compInfoOut);
+    this->AddCompParInfo("isActive", "bool", this->m_isActive, compInfoOut);
 }
 
 void ModelComponent::SetParameter(sParameterInfo& parameterIn)
@@ -21,6 +23,9 @@ void ModelComponent::SetParameter(sParameterInfo& parameterIn)
 
     if (parameterIn.parameterName == "name") {
         this->name = parameterIn.parameterStrValue;
+    }
+    else if (parameterIn.parameterName == "collisionName") {
+        this->collisionName = parameterIn.parameterStrValue;
     }
     else if (parameterIn.parameterName == "friendlyName") {
         this->friendlyName = parameterIn.parameterStrValue;
@@ -31,8 +36,33 @@ void ModelComponent::SetParameter(sParameterInfo& parameterIn)
     else if (parameterIn.parameterName == "doNotLight") {
         this->doNotLight = parameterIn.parameterBoolValue;
     }
+    else if (parameterIn.parameterName == "isActive") {
+        this->m_isActive = parameterIn.parameterBoolValue;
+    }
 
     return;
+}
+
+ModelComponent::ModelComponent()
+{
+    this->m_isActive = true;
+}
+
+void ModelComponent::SetActive(bool isActive)
+{
+    this->m_isActive = isActive;
+}
+
+bool ModelComponent::IsActive()
+{
+    if (this->m_isActive)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void ModelComponent::Update(double deltaTime, uint shaderID, iShaderInfo* pShaderInfo)
@@ -55,6 +85,10 @@ void ModelComponent::Update(double deltaTime, uint shaderID, iShaderInfo* pShade
 
 void ModelComponent::Render()
 {
+    if (!this->m_isActive)
+    {
+        return;
+    }
     // Bind to the VAO and call opengl to draw all vertices
     glBindVertexArray(this->pMeshInfo->VAO_ID); //  enable VAO (and everything else)
     glDrawElements(GL_TRIANGLES,

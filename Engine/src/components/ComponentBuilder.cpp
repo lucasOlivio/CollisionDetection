@@ -46,6 +46,10 @@ iComponent* ComponentBuilder::BuildComponent(sComponentInfo& componentInfo, Enti
 	{
 		newComponent = new PlayerComponent();
 	}
+	else if (componentInfo.componentName == "spawner")
+	{
+		newComponent = new SpawnerComponent();
+	}
 	else
 	{
 		printf("Error: Invalid component '%s'\n", componentInfo.componentName.c_str());

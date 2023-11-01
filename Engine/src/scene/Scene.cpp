@@ -1,12 +1,15 @@
 #include "scene/Scene.h"
 #include "components.h"
+#include "components/ComponentBuilder.h"
 
-Scene::Scene(iEvent* pKeyEvents)
+Scene::Scene(iEvent* pKeyEvents, iEvent* pCollisionEvents)
 {
     this->m_isPlaying = false;
     this->m_pKeyEvents = pKeyEvents;
+    this->m_pCollisionEvents = pCollisionEvents;
     this->m_numEntities = 0;
     this->m_components.clear();
+    this->m_toDestroy.clear();
 }
 
 Scene::~Scene()
@@ -18,16 +21,25 @@ void Scene::Clear()
 {
     for (auto& pairComponent : this->m_components) {
         for (auto& pairEntityComp : pairComponent.second) {
-            if (pairComponent.first == "player")
-            {
-                this->m_pKeyEvents->Dettach((PlayerComponent*)pairEntityComp.second);
-            }
-            delete pairEntityComp.second;
+            Component* pComp = (Component*)pairEntityComp.second;
+            this->m_pKeyEvents->Dettach(pComp);
+            this->m_pCollisionEvents->Dettach(pComp);
+            pComp->SetDeleted(true);
+            this->m_toDestroy.push_back(pairEntityComp.second) ;
         }
         pairComponent.second.clear();
     }
     this->m_components.clear();
     this->m_numEntities = 0;
+}
+
+void Scene::ClearDeleted()
+{
+    for (iComponent* pComp : this->m_toDestroy)
+    {
+        delete pComp;
+    }
+    this->m_toDestroy.clear();
 }
 
 EntityID Scene::GetNumEntities()
@@ -42,13 +54,44 @@ EntityID Scene::CreateEntity()
     return newEntityID;
 }
 
+EntityID Scene::CreateEntity(EntityID entityID)
+{
+    EntityID newEntityID = this->CreateEntity();
+    
+    std::vector<sComponentInfo> componentsInfo = this->GetComponentsInfo(entityID);
+
+    ComponentBuilder compBuilder = ComponentBuilder(this);
+    for (sComponentInfo sCompInfo : componentsInfo)
+    {
+        if (sCompInfo.componentName == "player")
+        {
+            continue;
+        }
+
+        iComponent* pNewComp = compBuilder.BuildComponent(sCompInfo, newEntityID);
+
+        if (sCompInfo.componentName == "model")
+        {
+            ModelComponent* pNewModelComp = (ModelComponent*)pNewComp;
+            ModelComponent* pModelComp = (ModelComponent*)this->GetComponent(entityID, "model");
+            pNewModelComp->pMeshInfo = pModelComp->pMeshInfo;
+        }
+    }
+
+    return newEntityID;
+}
+
 void Scene::DeleteEntity(EntityID entityID)
 {
     for (auto& pairComponent : this->m_components) {
         auto& innerMap = pairComponent.second;
         auto entityIter = innerMap.find(entityID);
         if (entityIter != innerMap.end()) {
-            delete entityIter->second;
+            Component* pComp = (Component*)entityIter->second;
+            this->m_pKeyEvents->Dettach(pComp);
+            this->m_pCollisionEvents->Dettach(pComp);
+            pComp->SetDeleted(true);
+            this->m_toDestroy.push_back(pComp);
             innerMap.erase(entityIter);
         }
     }
@@ -91,23 +134,35 @@ iComponent* Scene::GetComponent(EntityID entityID, std::string componentName)
 void Scene::SetComponent(EntityID entityID, std::string componentName, iComponent* componentIn)
 {
     // Check the entity already have this component
-    iComponent* compToDelete = this->GetComponent(entityID, componentName);
+    Component* compToDelete = (Component*)this->GetComponent(entityID, componentName);
 
     // If already have, delete it first
     if (compToDelete)
     {
-        delete compToDelete;
+        compToDelete->SetDeleted(true);
+        this->m_toDestroy.push_back(compToDelete);
     }
 
     // Now replace with the new component
     this->m_components[componentName][entityID] = componentIn;
     componentIn->SetGameplayDirector(this);
 
+    if (!this->IsPlaying())
+    {
+        return;
+    }
+
     if (componentName == "player")
     {
         PlayerComponent* pPlayer = (PlayerComponent*)componentIn;
         this->m_pKeyEvents->Attach(pPlayer);
         pPlayer->SetPlaying(this->IsPlaying());
+    }
+
+    if (componentName == "collision")
+    {
+        CollisionComponent* pCollision = (CollisionComponent*)componentIn;
+        this->m_pCollisionEvents->Attach(pCollision);
     }
 
     return;
@@ -139,13 +194,34 @@ std::vector<sComponentInfo> Scene::GetComponentsInfo(EntityID entityID)
 
 void Scene::SendAction(std::string action, EntityID entityID, sParameterInfo& parameterIn)
 {
-    if (action == "rotate")
+    if (action == "shoot")
     {
-        TransformComponent* pTransform = (TransformComponent*)this->GetComponent(entityID, "transform");
+        EntityID newEntityID = this->CreateEntity(entityID);
+
+        TransformComponent* pTransform = (TransformComponent*)this->GetComponent(newEntityID, "transform");
         if (pTransform)
         {
-            pTransform->AdjustOrientation(parameterIn.parameterVec3Value);
+            glm::vec3 newPosition = glm::vec3(parameterIn.parameterFloatValue, 0, 0);
+            pTransform->Move(newPosition);
         }
+
+        ForceComponent* pForce = (ForceComponent*)this->GetComponent(newEntityID, "force");
+        if (pForce)
+        {
+            pForce->SetActive(true);
+            pForce->SetVelocity(parameterIn.parameterVec3Value);
+            pForce->SetAcceleration(parameterIn.parameterVec4Value);
+        }
+
+        CollisionComponent* pCollision = (CollisionComponent*)this->GetComponent(newEntityID, "collision");
+        if (pCollision)
+        {
+            pCollision->SetActive(true);
+        }
+    }
+    else if (action == "destroy")
+    {
+        this->DeleteEntity(entityID);
     }
 
     return;
@@ -166,4 +242,9 @@ bool Scene::IsPlaying()
 void Scene::SetPlaying(bool isPlaying)
 {
     this->m_isPlaying = isPlaying;
+
+    if (!this->m_isPlaying)
+    {
+
+    }
 }

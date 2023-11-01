@@ -14,8 +14,8 @@ namespace myutils
 
     // Split string based on delimiter
     void SplitString(const std::string& stringIn,
-                     char delimiter,
-                     std::vector<std::string> vecOut);
+        char delimiter,
+        std::vector<std::string> vecOut);
 
     // Convert array to a string separated by delimiter
     template <typename T>
@@ -34,10 +34,10 @@ namespace myutils
     void WrapMinMax(int min, int max, int& numOut);
     void WrapMinMax(float min, float max, float& numOut);
 
-    void ModifyVec3(unsigned int axis, 
-                    int orientation,
-                    float changeStep,
-                    glm::vec3& vecParameterOut);
+    void ModifyVec3(unsigned int axis,
+        int orientation,
+        float changeStep,
+        glm::vec3& vecParameterOut);
 
     // Converts the glm vec string from "string_cast" back to glm::vec
     glm::vec4 StringToVec4(const std::string& glmstr);
@@ -48,4 +48,6 @@ namespace myutils
     std::string VecToString(glm::vec4 glmVec);
 
     double FormatFloatWithPrecision(float value, int decimalPlaces);
+
+    bool TxtToPointVector(std::string filename, char one, char zero, glm::vec3 minXY, glm::vec3 maxXY, std::vector<glm::vec3>& vecOut);
 }

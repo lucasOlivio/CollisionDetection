@@ -5,42 +5,18 @@
 #include "EngineRenderer/iShaderInfo.h"
 #include <vector>
 
-enum eAnimType
-{
-	SPRITE,
-	TRANSFORM,
-	LIGHT_DIMMER
-};
-
 class AnimationComponent : public Component
 {
 private:
-	eAnimType m_type;
 	bool m_isActive;
 	double m_elapsedTime;
 
-	// Light dimmer animations
-	float m_amplitude;
-	float m_frequency;
-	float m_offset;
+	// Scale animation
+	EntityID m_changeTo;
+	float m_duration;
+	int m_scaleRate; // Quantity per second that will increase
 
-	void m_UpdateSinValue();
-
-	// Transform animations
-	glm::vec3 m_direction;
-	float m_duration;		   // How many seconds should run
-	float m_ups;			   // Units/sec it will move
-	std::string m_triggerName; // Other model to trigger
-	float m_triggerValue;	   // Bellow what "range" should trigger
-
-	void m_UpdateTransform(double deltaTime);
-
-	// sprite animations
-	int m_currFrame;
-	std::vector <sMesh*> m_pMeshes;
-
-	void m_UpdateFrames();
-	void m_UpdateUniforms(uint shaderID, iShaderInfo* pShaderInfo);
+	void m_UpdateScale(double deltaTime);
 
 public:
 	AnimationComponent();
@@ -51,10 +27,8 @@ public:
 	bool isWireframe;
 	bool doNotLight;
 
-	// Toggle animation back and forth
+	// Toggle animation on/off
 	void Toggle();
-
-	void SetMesh(uint index, sMesh* pMesh);
 
 	virtual void GetInfo(sComponentInfo& compInfoOut);
 	virtual void SetParameter(sParameterInfo& parameterIn);

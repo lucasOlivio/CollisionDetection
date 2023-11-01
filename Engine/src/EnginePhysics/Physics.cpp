@@ -1,7 +1,9 @@
 #include "EnginePhysics/Physics.h"
 #include "components/Force.h"
 #include "components/Collision.h"
+#include "components/Spawner.h"
 #include "common/utilsMat.h"
+#include <glm/gtx/string_cast.hpp>
 
 Physics::Physics(SceneView* pSceneView, CollisionEvent* pCollisionEvent)
 {
@@ -18,7 +20,7 @@ Physics::~Physics()
 void Physics::ApplyForce(EntityID entityID, double deltaTime)
 {
 	ForceComponent* pForce = this->m_pSceneView->GetComponent<ForceComponent>(entityID, "force");
-	if (!pForce)
+	if (!pForce || !pForce->IsActive())
 	{
 		// Entity don't have force, so nothing we can do
 		return;
@@ -38,13 +40,22 @@ void Physics::ApplyForce(EntityID entityID, double deltaTime)
 		return;
 	}
 
+	// Move towards point
+	glm::vec3 adjustTowards = glm::vec3(1);
+	if (pForce->GetAdjustValue() != glm::vec3(0))
+	{
+		// Get direction of adjustment
+		glm::vec3 direction = pForce->GetAdjustTowards() - pTransform->GetPosition();
+		adjustTowards = glm::normalize(direction) * pForce->GetAdjustValue();
+	}
+
 	// Explicit forward Euler "integration step"
 	//	NewVelocity = LastVel + (Accel * DeltaTime)
 	//	NewPosition = LastPos + (Vel * DeltaTime)	
 
 	// Calculate new velocity this frame based on 
 	// delta time, acceleration and current velocity
-	glm::vec3 velThisFrame = (pForce->GetAcceleration() * (float)deltaTime) + pForce->GetVelocity();
+	glm::vec3 velThisFrame = (pForce->GetAcceleration() * adjustTowards * (float)deltaTime) + pForce->GetVelocity();
 	pForce->SetVelocity(velThisFrame);
 	// New object position
 	glm::vec3 deltaPosition = velThisFrame * (float)deltaTime;
@@ -54,19 +65,72 @@ void Physics::ApplyForce(EntityID entityID, double deltaTime)
 	return;
 }
 
-void Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& collisionsOut)
+void Physics::ResolveCollision(sCollisionEvent* pCollisionEvent, TransformComponent* pTransformA,
+							TransformComponent* pTransformB, ForceComponent* pForceA, ForceComponent* pForceB,
+							glm::vec3 collisionNormalA, glm::vec3 collisionNormalB)
 {
+	glm::vec3 velocityA = glm::vec3(0);
+	glm::vec3 velocityB = glm::vec3(0);
+
+	float inverseMassA = 0;
+	float inverseMassB = 0;
+
+	if (pForceA)
+	{
+		velocityA = pForceA->GetVelocity();
+		inverseMassA = pForceA->GetInverseMass();
+	}
+
+	if (pForceB)
+	{
+		velocityB = pForceB->GetVelocity();
+		inverseMassB = pForceB->GetInverseMass();
+	}
+
+	// Recalculate velocity based on inverse mass
+	if (pCollisionEvent->bodyTypeA == eBodyType::DYNAMIC)
+	{
+		if (pCollisionEvent->bodyTypeB == eBodyType::STATIC)
+		{
+			pTransformA->SetOldPosition();
+		}
+
+		myutils::ResolveVelocity(velocityA, velocityB, collisionNormalA, pForceA->GetRestitution(),
+			inverseMassA, inverseMassB);
+
+		pForceA->SetVelocity(velocityA);
+	}
+
+	if (pCollisionEvent->bodyTypeB == eBodyType::DYNAMIC)
+	{
+		if (pCollisionEvent->bodyTypeA == eBodyType::STATIC)
+		{
+			pTransformB->SetOldPosition();
+		}
+
+		myutils::ResolveVelocity(velocityB, velocityA, collisionNormalB, pForceB->GetRestitution(),
+			inverseMassB, inverseMassA);
+
+		pForceB->SetVelocity(velocityB);
+	}
+}
+
+bool Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& collisionsOut)
+{
+	bool isIntersecting = false;
+	glm::vec3 collisionNormalA = glm::vec3(0);
+	glm::vec3 collisionNormalB = glm::vec3(0);
 	// Getting all we need from entity A first
 	CollisionComponent* pCollA = this->m_pSceneView->GetComponent<CollisionComponent>(entityA, "collision");
 	ForceComponent* pForceA = this->m_pSceneView->GetComponent<ForceComponent>(entityA, "force");
 	TransformComponent* pTransformA = this->m_pSceneView->GetComponent<TransformComponent>(entityA, "transform");
-	if (!pCollA || !pForceA || !pTransformA)
+	if (!pCollA || !pTransformA 
+		|| pCollA->Get_eBodyType() == eBodyType::STATIC
+		|| !pCollA->IsActive())
 	{
-		// Entity don't have right components
-		return;
+		// Entity don't have components to collide
+		return false;
 	}
-
-	// TODO: Check repeated comparisons
 
 	// Go through each other collidable object
 	for (this->m_pSceneView->First("collision"); !this->m_pSceneView->IsDone(); this->m_pSceneView->Next())
@@ -79,6 +143,7 @@ void Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& c
 		if (!pCollB
 			|| this->m_pSceneView->CurrentKey() == entityA // Check its not the same object
 			|| this->IsAlreadyTested(entityA, entityB) // Check has already been tested this frame
+			|| !pCollB->IsActive()
 			)
 		{
 			continue;
@@ -99,20 +164,23 @@ void Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& c
 
 			if (pCollB->Get_eShape() == eShape::SPHERE)
 			{
-				sSphere* pSphereB = pCollB->GetShape<sSphere>();
+  				sSphere* pSphereB = pCollB->GetShape<sSphere>();
 
 				bool isCollision = this->SphereSphere_Test(pSphereA, pTransformA, pSphereB, pTransformB,
-															pCollisionEvent);
+					pCollisionEvent);
 
 				if (!isCollision)
 				{
 					continue;
 				}
+				// Normals for the new velocity calculation
+				collisionNormalA = myutils::GetNormal(pCollisionEvent->contactPointB, pTransformB->GetPosition());
+				collisionNormalB = myutils::GetNormal(pCollisionEvent->contactPointA, pTransformA->GetPosition());
 
 				pCollisionEvent->reflectionNormalA = myutils::GetReflectionNormal(pCollisionEvent->contactPointA,
-															pForceA->GetVelocity(), pTransformB->GetPosition());
+					pForceA->GetVelocity(), pTransformB->GetPosition());
 				pCollisionEvent->reflectionNormalB = myutils::GetReflectionNormal(pCollisionEvent->contactPointB,
-															pForceB->GetVelocity(), pTransformA->GetPosition());
+					pForceB->GetVelocity(), pTransformA->GetPosition());
 			}
 			else if (pCollB->Get_eShape() == eShape::MESH_OF_TRIANGLES_INDIRECT)
 			{
@@ -130,13 +198,16 @@ void Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& c
 				}
 
 				bool isCollision = this->SphereTriMeshIndirect_Test(pSphereA, pTransformA,
-																	pMeshB, pTransformB, pCollisionEvent);
+					pMeshB, pTransformB, pCollisionEvent);
 				if (!isCollision)
 				{
 					continue;
 				}
-				pCollisionEvent->reflectionNormalA = myutils::GetReflectionNormal(pForceA->GetVelocity(),
-															pCollisionEvent->pMeshTriangleCollision->vertices);
+
+				// Normals for the new velocity calculations
+				collisionNormalA = myutils::GetNormal(pCollisionEvent->pMeshTriangleCollision->vertices);
+
+				pCollisionEvent->reflectionNormalA = myutils::GetReflectionNormal(pForceA->GetVelocity(), pCollisionEvent->pMeshTriangleCollision->vertices);
 			}
 			else
 			{
@@ -144,15 +215,41 @@ void Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& c
 				continue;
 			}
 		}
-		else if (pCollA->Get_eShape() == eShape::MESH_OF_TRIANGLES_INDIRECT)
+		else if (pCollA->Get_eShape() == eShape::AABB)
 		{
-			sMeshOfTriangles_Indirect* pMesh = pCollA->GetShape<sMeshOfTriangles_Indirect>();
+			sAABB* pAABB_A = pCollA->GetShape<sAABB>();
+
+			if (pCollB->Get_eShape() == eShape::GRID)
+			{
+				sGrid* pGridB = pCollB->GetShape<sGrid>();
+				bool isCollision = this->AABBGrid_Test(pAABB_A, pTransformA, pGridB, pTransformB, pCollisionEvent);
+
+				if (!isCollision)
+				{
+					continue;
+				}
+			}
+			else if (pCollB->Get_eShape() == eShape::AABB)
+			{
+				sAABB* pAABBB_B = pCollB->GetShape<sAABB>();
+				bool isCollision = this->AABBAABB_Test(pAABB_A, pTransformA, pAABBB_B, pTransformB, pCollisionEvent);
+
+				if (!isCollision)
+				{
+					continue;
+				}
+			}
+			else
+			{
+				// Not implemented test
+				continue;
+			}
 		}
 		else
 		{
 			// Not implemented shape for component A
 			// Can return right away
-			return;
+			return false;
 		}
 
 		if (!pCollisionEvent)
@@ -160,35 +257,23 @@ void Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& c
 			continue;
 		}
 
+		isIntersecting = true;
+
+		pCollisionEvent->bodyTypeA = pCollA->Get_eBodyType();
+		pCollisionEvent->bodyTypeB = pCollB->Get_eBodyType();
+
+		this->ResolveCollision(pCollisionEvent, pTransformA, pTransformB, pForceA, pForceB, 
+								collisionNormalA, collisionNormalB);
+
 		collisionsOut.push_back(pCollisionEvent);
-
-		// Recalculate velocity based on inverse mass
-		glm::vec3 newVelocityA = myutils::ResolveVelocity(pForceA->GetVelocity(),
-			pCollisionEvent->reflectionNormalA, pForceA->GetInverseMass());
-		pForceA->SetVelocity(newVelocityA);
-		// Reset position so the object don't get stuck
-		pTransformA->SetOldPosition();
-
-		if (!pForceB)
-		{
-			continue;
-		}
-		// Recalculate velocity based on inverse mass
-		glm::vec3 newVelocityB = myutils::ResolveVelocity(pForceA->GetVelocity(),
-			pCollisionEvent->reflectionNormalB, pForceA->GetInverseMass());
-		pForceB->SetVelocity(newVelocityB);
-		// Reset position so the object don't get stuck
-		pTransformB->SetOldPosition();
 	}
 
-	return;
+	return isIntersecting;
 }
 
-void Physics::CheckCollisions(EntityID entityA)
+bool Physics::CheckCollisions(EntityID entityA)
 {
-	this->CheckCollisions(entityA, this->m_vecFrameCollisions);
-
-	return;
+	return this->CheckCollisions(entityA, this->m_vecFrameCollisions);
 }
 
 bool Physics::IsAlreadyTested(EntityID entityA, EntityID entityB)
@@ -230,9 +315,15 @@ void Physics::Update(EntityID entityID, double deltaTime)
 
 	this->ApplyForce(entityID, deltaTime);
 
-	this->CheckCollisions(entityID);
+	bool isColliding = this->CheckCollisions(entityID);
+
+	if (!isColliding)
+	{
+		return;
+	}
 
 	// Trigger collision event for objects that collided
+	this->m_pCollisionEvent->TriggerCollisions(this->m_vecFrameCollisions);
 }
 
 bool Physics::IsRunning()
@@ -347,4 +438,66 @@ bool Physics::SphereSphere_Test(sSphere* pSphereA, TransformComponent* pTransfor
 															pTransformA->GetPosition(), pSphereA->radius);
 
 	return pCollision;
+}
+
+// Function to check for AABB-grid intersection
+bool Physics::AABBGrid_Test(sAABB* aabb, TransformComponent* pTransformAABB,
+	sGrid* grid, TransformComponent* pTransformGrid,
+	sCollisionEvent* pCollision)
+{
+	// Transform objects in world space
+	glm::mat4 matModel = glm::mat4(1.0f);
+	myutils::ApplyTransformInModelMat(pTransformAABB, matModel);
+
+	glm::vec4 minWorld = (matModel * glm::vec4(aabb->minXYZ, 1.0f));
+	glm::vec4 maxWorld = (matModel * glm::vec4(aabb->maxXYZ, 1.0f));
+
+	// Check if objects collide
+	bool isIntersect = false;
+	for (int i = 0; i < grid->vecGrid.size(); ++i)
+	{
+		// if this position is between min and max from aabb
+		glm::vec3 worldPosition = grid->vecGrid[i];
+		if (minWorld.x <= worldPosition.x && maxWorld.x >= worldPosition.x &&
+			minWorld.y <= worldPosition.y && maxWorld.y >= worldPosition.y)
+		{
+			pCollision->contactPointA = worldPosition;
+			pCollision->contactPointB = worldPosition;
+
+			return true; // Collision detected
+		}
+	}
+
+	return false;
+}
+
+// From: Real-Time Collision Detection- Ericson, Christer
+// Chapter 4:
+bool Physics::AABBAABB_Test(sAABB* aabbA, TransformComponent* pTransformA,
+	sAABB* aabbB, TransformComponent* pTransformB,
+	sCollisionEvent* pCollision)
+{
+	// Transform A in world space
+	glm::mat4 matModelA = glm::mat4(1.0f);
+	myutils::ApplyTransformInModelMat(pTransformA, matModelA);
+	glm::vec4 AminWorld = (matModelA * glm::vec4(aabbA->minXYZ, 1.0f));
+	glm::vec4 AmaxWorld = (matModelA * glm::vec4(aabbA->maxXYZ, 1.0f));
+
+	// Transform B in world space
+	glm::mat4 matModelB = glm::mat4(1.0f);
+	myutils::ApplyTransformInModelMat(pTransformB, matModelB);
+	glm::vec4 BminWorld = (matModelB * glm::vec4(aabbB->minXYZ, 1.0f));
+	glm::vec4 BmaxWorld = (matModelB * glm::vec4(aabbB->maxXYZ, 1.0f));
+
+	// Check if objects collide
+	if (AmaxWorld[0] < BminWorld[0] || AminWorld[0] > BmaxWorld[0]
+		|| AmaxWorld[1] < BminWorld[1] || AminWorld[1] > BmaxWorld[1]
+		|| AmaxWorld[2] < BminWorld[2] || AminWorld[2] > BmaxWorld[2])
+	{
+		return false;
+	}
+	pCollision->contactPointA = AminWorld;
+	pCollision->contactPointB = BminWorld;
+
+	return true;
 }

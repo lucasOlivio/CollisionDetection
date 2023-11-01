@@ -23,6 +23,7 @@
     <ClCompile Include="src\components\Animation.cpp" />
     <ClCompile Include="src\components\Camera.cpp" />
     <ClCompile Include="src\components\Player.cpp" />
+    <ClCompile Include="src\components\Spawner.cpp" />
     <ClCompile Include="src\components\Tiling.cpp" />
     <ClCompile Include="src\EngineRenderer\CameraSystem.cpp" />
     <ClCompile Include="src\components\Collision.cpp" />
@@ -75,6 +76,9 @@
     <ClInclude Include="include\components\iComponent.h" />
     <ClInclude Include="include\components\Player.h" />
     <ClInclude Include="include\components\Projectile.h" />
+    <ClInclude Include="include\components\Spawner.h" />
+    <ClInclude Include="include\events\iCollisionListener.h" />
+    <ClInclude Include="include\events\sCollisionEvent.h" />
     <ClInclude Include="include\scene\iGameplayDirector.h" />
     <ClInclude Include="include\components\Light.h" />
     <ClInclude Include="include\components\Model.h" />

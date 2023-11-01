@@ -5,14 +5,13 @@
 #include "events/iListener.h"
 #include <glm/vec3.hpp>
 
-class PlayerComponent : public Component,
-						public iListener
+class PlayerComponent : public Component
 {
 private:
-	// Velocity for each axis the entity can walk/rotate
+	// Starting velocity for the shooting ball
 	glm::vec3 m_velocity;
-	// Current orientation the entity should be facing
-	glm::vec3 m_currentOrientation;
+	// Constant acceleration for the shooting ball
+	glm::vec3 m_acceleration;
 
 	bool m_isPlaying;
 public:

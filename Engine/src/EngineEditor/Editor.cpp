@@ -223,22 +223,22 @@ void Editor::KeyActions(sKeyInfo keyInfo)
 
 	// Set value directly
 	// --------------------------------------------
-	if (keyInfo.pressedKey == GLFW_KEY_KP_0 && (keyInfo.action == GLFW_PRESS))
+	if (keyInfo.pressedKey == GLFW_KEY_0 && (keyInfo.action == GLFW_PRESS))
 	{
 		this->SetParameterManually(0);
 		return;
 	}
-	if (keyInfo.pressedKey == GLFW_KEY_KP_1 && (keyInfo.action == GLFW_PRESS))
+	if (keyInfo.pressedKey == GLFW_KEY_1 && (keyInfo.action == GLFW_PRESS))
 	{
 		this->SetParameterManually(1);
 		return;
 	}
-	if (keyInfo.pressedKey == GLFW_KEY_KP_2 && (keyInfo.action == GLFW_PRESS))
+	if (keyInfo.pressedKey == GLFW_KEY_2 && (keyInfo.action == GLFW_PRESS))
 	{
 		this->SetParameterManually(2);
 		return;
 	}
-	if (keyInfo.pressedKey == GLFW_KEY_KP_3 && (keyInfo.action == GLFW_PRESS))
+	if (keyInfo.pressedKey == GLFW_KEY_3 && (keyInfo.action == GLFW_PRESS))
 	{
 		this->SetParameterManually(3);
 		return;
@@ -274,22 +274,22 @@ void Editor::KeyActions(sKeyInfo keyInfo)
 	// --------------------------------------------
 	if (keyInfo.mods == 0)
 	{
-		if (keyInfo.pressedKey == GLFW_KEY_KP_ADD && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
+		if (keyInfo.pressedKey == GLFW_KEY_EQUAL && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
 		{
 			changeStepFloat += 0.01f;
 			return;
 		}
-		if (keyInfo.pressedKey == GLFW_KEY_KP_SUBTRACT && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
+		if (keyInfo.pressedKey == GLFW_KEY_MINUS && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
 		{
 			changeStepFloat -= 0.01f;
 			return;
 		}
-		if (keyInfo.pressedKey == GLFW_KEY_KP_DIVIDE && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
+		if (keyInfo.pressedKey == GLFW_KEY_RIGHT_BRACKET && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
 		{
 			changeStepFloat += 0.1f;
 			return;
 		}
-		if (keyInfo.pressedKey == GLFW_KEY_KP_MULTIPLY && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
+		if (keyInfo.pressedKey == GLFW_KEY_LEFT_BRACKET && (keyInfo.action == GLFW_PRESS || keyInfo.action == GLFW_REPEAT))
 		{
 			changeStepFloat -= 0.1f;
 			return;

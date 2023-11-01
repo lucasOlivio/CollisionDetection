@@ -31,6 +31,15 @@ bool ModelSystem::LoadModels(int shaderID)
         {
             return false;
         }
+
+        if (pModel->collisionName != "")
+        {
+            pModel->pCollisionMesh = this->m_pVAOManager->LoadModelIntoVAO(pModel->collisionName, shaderID, false);
+            if (!pModel->pCollisionMesh)
+            {
+                return false;
+            }
+        }
     }
 
     return true;

@@ -23,17 +23,27 @@ private:
 	bool m_isPlaying;
 
 	iEvent* m_pKeyEvents;
+	iEvent* m_pCollisionEvents;
+
+	// Components that were already deleted and are waiting end of frame to 
+	// be completely removed
+	std::vector<iComponent*> m_toDestroy;
 
 public:
-	Scene(iEvent* pKeyEvents);
+	Scene(iEvent* pKeyEvents, iEvent* pCollisionEvents);
 	~Scene();
 
 	// Delete all components pointers and clear maps
 	virtual void Clear();
 
+	// Delete components that were marked
+	void ClearDeleted();
+
 	virtual EntityID GetNumEntities();
 
 	virtual EntityID CreateEntity();
+	// Create a new entity id copy of the "entityID" passed
+	virtual EntityID CreateEntity(EntityID entityID);
 	virtual void DeleteEntity(EntityID entityID);
 
 	// Get all parameters info from all the components

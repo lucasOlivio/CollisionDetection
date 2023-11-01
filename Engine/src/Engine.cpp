@@ -3,10 +3,10 @@
 #include "common/ConfigReadWriteFactory.h"
 #include "events/KeyWrapper.h"
 #include "common/utils.h"
+#include "common/constants.h"
 
 
 // TODO: All this should come from a config file
-double frameRate = 1.0 / 30.0; // 30 FPS (16ms)
 std::string baseConfigsPath = "configs/";
 std::string sceneFilePath = "";
 std::string baseShadersPath = "assets/shaders/";
@@ -56,7 +56,7 @@ bool Engine::Initialize(const std::string& sceneName)
 
 	printf("Initializing creation of scene '%s'\n", sceneName.c_str());
 
-	this->m_pScene = new Scene(this->m_pKeyEvent);
+	this->m_pScene = new Scene(this->m_pKeyEvent, this->m_pCollisionEvent);
 	this->m_pSceneView = new SceneView(this->m_pScene);
 	iConfigReadWrite* pConfigrw = ConfigReadWriteFactory::CreateConfigReadWrite("json");
 
@@ -128,6 +128,8 @@ void Engine::Run()
 		}
 
 		this->m_pRenderer->EndFrame();
+
+		this->m_pScene->ClearDeleted();
 	}
 }
 
@@ -154,8 +156,8 @@ double Engine::GetFixedDeltaTime()
 	// printf("delta real: %.2f\n", deltaTime);
 
 	// Clamp delta time to the maximum frame time
-	if (deltaTime > frameRate) {
-		deltaTime = frameRate;
+	if (deltaTime > FRAME_DURATION) {
+		deltaTime = FRAME_DURATION;
 	}
 
 	// Add the frame time to the list

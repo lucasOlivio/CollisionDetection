@@ -8,10 +8,10 @@ class iListener;
 // Event subject
 class Event : public iEvent
 {
-private:
-     std::vector<iListener*> m_pListeners;
 protected:
     Event() {};
+
+    std::vector<iListener*> m_pListeners;
 public:
     virtual ~Event();
 
@@ -20,5 +20,5 @@ public:
     virtual void Dettach(iListener* pListener);
 
     // This method allows subjects to send events via the EventManager
-    virtual void Notify(iEvent* pEvent);
+    virtual void Notify();
 };

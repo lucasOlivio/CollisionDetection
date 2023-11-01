@@ -124,9 +124,6 @@
     <ClCompile Include="src\scene\SceneParserJSON.cpp">
       <Filter>EngineUtilities\Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="src\scene\Scene.cpp">
-      <Filter>EngineUtilities\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="src\EnginePhysics\CollisionEvent.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -137,6 +134,12 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="src\components\Player.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\components\Spawner.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\Scene.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -287,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="include\components\Player.h" />
     <ClInclude Include="include\components\ComponentFactory.h" />
+    <ClInclude Include="include\components\Spawner.h" />
+    <ClInclude Include="include\events\sCollisionEvent.h" />
+    <ClInclude Include="include\events\iCollisionListener.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\scene\SceneView.tpp">

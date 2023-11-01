@@ -116,6 +116,28 @@ namespace myutils
         return u * a + v * b + w * c;
     }
 
+    glm::vec3 GetCollisionNormal(glm::vec3 velocityA, glm::vec3 velocityB)
+    {
+        glm::vec3 normal = glm::normalize(velocityA - velocityB);
+        return normal;
+    }
+
+    glm::vec3 GetNormal(glm::vec3 collisionPoint, glm::vec3 center)
+    {
+        glm::vec3 normal = glm::normalize(collisionPoint - center);
+        return normal;
+    }
+
+    glm::vec3 GetNormal(glm::vec3 vertices[3])
+    {
+        // Get triangle hit normals
+        glm::vec3 edgeA = vertices[1] - vertices[0];
+        glm::vec3 edgeB = vertices[2] - vertices[0];
+        glm::vec3 triNormal = glm::normalize(glm::cross(edgeA, edgeB));
+
+        return triNormal;
+    }
+
     glm::vec3 GetReflectionNormal(glm::vec3 direction, glm::vec3 triangleVertices[3])
     {
         // Normalize sphere direction
@@ -123,23 +145,25 @@ namespace myutils
         sphereDirection = glm::normalize(sphereDirection);
 
         // Get triangle hit normals
-        glm::vec3 edgeA = triangleVertices[1] - triangleVertices[0];
-        glm::vec3 edgeB = triangleVertices[2] - triangleVertices[0];
-        glm::vec3 triNormal = glm::normalize(glm::cross(edgeA, edgeB));
+        glm::vec3 triNormal = myutils::GetNormal(triangleVertices);
 
         // Calculate the reflection vector from the normal	
         // https://registry.khronos.org/OpenGL-Refpages/gl4/html/reflect.xhtml
         // 1st parameter is the "incident" vector
         // 2nd parameter is the "normal" vector
-        return glm::reflect(sphereDirection, triNormal);
+        glm::vec3 reflectionNormal = glm::reflect(sphereDirection, triNormal);
+
+        return reflectionNormal;
     }
 
     glm::vec3 GetReflectionNormal(glm::vec3 collisionPoint, glm::vec3 velocityA, glm::vec3 centerB)
     {
         // Normalize A direction
-        glm::vec3 normal = glm::normalize(collisionPoint - centerB);
+        glm::vec3 normal = myutils::GetNormal(collisionPoint, centerB);
 
-        return velocityA - (2 * (glm::dot(velocityA, normal)) * normal);
+        glm::vec3 reflectionNormal = glm::normalize(velocityA - (2 * (glm::dot(velocityA, normal)) * normal));
+
+        return reflectionNormal;
     }
 
     glm::vec3 GetSpheresContactPont(glm::vec3 centerA, float radA, glm::vec3 centerB, float radB)
@@ -147,10 +171,56 @@ namespace myutils
         return centerA + ((centerB - centerA) * radA / (radA + radB));
     }
 
-    glm::vec3 ResolveVelocity(glm::vec3 velocity, glm::vec3 reflectionNormal, float restitution)
+    float CalculateSeparatingVelocity(glm::vec3 velocityA, glm::vec3 velocityB, glm::vec3 contactNormal)
     {
-        float newSpeed = glm::length(velocity) * restitution;
-        return reflectionNormal * newSpeed;
+        glm::vec3 relativeVelocity = velocityA;
+        if (velocityB != glm::vec3(0)) relativeVelocity -= velocityB;
+        return glm::dot(relativeVelocity, contactNormal);
+    }
+
+    void ResolveVelocity(glm::vec3& velocityA, glm::vec3& velocityB, glm::vec3 contactNormal, float restitution,
+                                        float inverseMassA, float inverseMassB)
+    {
+        // Find the velocity in the direction of the contact.
+        float separatingVelocity = CalculateSeparatingVelocity(velocityA, velocityB, contactNormal);
+        // Check if it needs to be resolved.
+        if (separatingVelocity > 0)
+        {
+            // The contact is either separating, or stationary;
+            // no extra impulse is required.
+            return;
+        }
+
+        // Calculate the new separating velocity.
+        float newSepVelocity = -separatingVelocity * restitution;
+        float deltaVelocity = newSepVelocity - separatingVelocity;
+        // We apply the change in velocity to each object in proportion to
+        // their inverse mass (i.e., those with lower inverse mass [higher
+        // actual mass] get less change in velocity).
+        float totalInverseMass = inverseMassA;
+        if (velocityB != glm::vec3(0)) totalInverseMass += inverseMassB;
+        // If all particles have infinite mass, then impulses have no effect.
+        if (totalInverseMass <= 0) return;
+        // Calculate the impulse to apply.
+        float impulse = deltaVelocity / totalInverseMass;
+        // Find the amount of impulse per unit of inverse mass.
+        glm::vec3 impulsePerIMass = contactNormal * impulse;
+        // Apply impulses: they are applied in the direction of the contact,
+        // and are proportional to the inverse mass.
+        velocityA = velocityA + impulsePerIMass * inverseMassA;
+        if (velocityB != glm::vec3(0))
+        {
+            // Particle 1 goes in the opposite direction
+            velocityB = velocityB + impulsePerIMass * -inverseMassB;
+        }
+
+        return;
+    }
+
+    void ResolveVelocity(glm::vec3& velocity, glm::vec3 reflectionNormal, float inverseMass)
+    {
+        float newSpeed = glm::length(velocity) * inverseMass;
+        velocity = reflectionNormal * newSpeed;
     }
 
     float CalculateSinWave(float currentTime, float amplitude, float frequency, float offset) {

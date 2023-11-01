@@ -30,6 +30,13 @@ void TransformComponent::Move(glm::vec3 deltaValue)
 	this->m_position.x += deltaValue.x;
 	this->m_position.y += deltaValue.y;
 	this->m_position.z += deltaValue.z;
+
+	// TODO: Gameplay should be decoupled
+	if (this->m_position.y < -1)
+	{
+		sParameterInfo ignore;
+		this->m_pGameplayDirector->SendAction("destroy", this->GetEntityID(), ignore);
+	}
 }
 
 void TransformComponent::SetFramePosition()
@@ -88,6 +95,11 @@ glm::quat TransformComponent::GetQuatOrientation()
 glm::vec3 TransformComponent::GetOrientation()
 {
 	return glm::degrees(glm::eulerAngles(this->GetQuatOrientation()));
+}
+
+void TransformComponent::AdjustScale(float value)
+{
+	this->m_scale += value;
 }
 
 void TransformComponent::SetScale(float value)

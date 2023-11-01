@@ -3,6 +3,28 @@
 
 const int FLOAT_DECIMAL_PRECISION = 5;
 
+Component::Component()
+{
+    this->m_isDeleted = false;
+}
+
+void Component::SetDeleted(bool isDeleted)
+{
+    this->m_isDeleted = isDeleted;
+}
+
+bool Component::IsDeleted()
+{
+    if (this->m_isDeleted)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 // TODO: Is there a better way to do this?
 void Component::AddCompParInfo(const std::string& name,
                                const std::string& type,
@@ -126,4 +148,12 @@ void Component::SetEntityID(EntityID entityID)
 void Component::SetGameplayDirector(iGameplayDirector* pGameplayDirector)
 {
     this->m_pGameplayDirector = pGameplayDirector;
+}
+
+void Component::Notify(iEvent* pEvent)
+{
+}
+
+void Component::Notify(sCollisionEvent* pCollision)
+{
 }

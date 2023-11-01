@@ -9,3 +9,4 @@
 #include "components/Animation.h"
 #include "components/Tiling.h"
 #include "components/Player.h"
+#include "components/Spawner.h"

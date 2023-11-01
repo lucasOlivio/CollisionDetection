@@ -24,6 +24,7 @@ bool WindowSystem::Initialize(uint windowWidth, uint windowHeight, const std::st
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
     this->m_width = windowWidth;
     this->m_height = windowHeight;

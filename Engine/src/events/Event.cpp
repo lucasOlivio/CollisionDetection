@@ -4,7 +4,7 @@ Event::~Event()
 {
 }
 
-void Event::Notify(iEvent* pEvent)
+void Event::Notify()
 {
 	// Notify all listeners that was a change
 	for (iListener* listener : this->m_pListeners)

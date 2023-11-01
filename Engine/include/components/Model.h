@@ -7,13 +7,23 @@
 
 class ModelComponent : public Component
 {
+private:
+	bool m_isActive;
 public:
+	ModelComponent();
+	virtual ~ModelComponent() {};
+
 	std::string name;
+	std::string collisionName;
 	std::string friendlyName;
 	bool isWireframe;
 	bool doNotLight;
 
 	sMesh* pMeshInfo;
+	sMesh* pCollisionMesh;
+
+	void SetActive(bool isActive);
+	bool IsActive();
 
 	void Update(double deltaTime, uint shaderID, iShaderInfo* pShaderInfo);
 	void Render();

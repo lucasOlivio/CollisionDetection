@@ -43,6 +43,7 @@ public:
 	// Convert orientation from quaternions to degrees angles
 	glm::vec3 GetOrientation();
 
+	void AdjustScale(float value);
 	void SetScale(float value);
 	float GetScale();
 
