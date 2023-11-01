@@ -75,16 +75,21 @@ void Physics::ResolveCollision(sCollisionEvent* pCollisionEvent, TransformCompon
 	float inverseMassA = 0;
 	float inverseMassB = 0;
 
+	float restitutionA = 0;
+	float restitutionB = 0;
+
 	if (pForceA)
 	{
 		velocityA = pForceA->GetVelocity();
 		inverseMassA = pForceA->GetInverseMass();
+		restitutionA = pForceA->GetRestitution();
 	}
 
 	if (pForceB)
 	{
 		velocityB = pForceB->GetVelocity();
 		inverseMassB = pForceB->GetInverseMass();
+		restitutionB = pForceB->GetRestitution();
 	}
 
 	// Recalculate velocity based on inverse mass
@@ -95,7 +100,7 @@ void Physics::ResolveCollision(sCollisionEvent* pCollisionEvent, TransformCompon
 			pTransformA->SetOldPosition();
 		}
 
-		myutils::ResolveVelocity(velocityA, velocityB, collisionNormalA, pForceA->GetRestitution(),
+		myutils::ResolveVelocity(velocityA, velocityB, collisionNormalA, restitutionA,
 			inverseMassA, inverseMassB);
 
 		pForceA->SetVelocity(velocityA);
@@ -108,7 +113,7 @@ void Physics::ResolveCollision(sCollisionEvent* pCollisionEvent, TransformCompon
 			pTransformB->SetOldPosition();
 		}
 
-		myutils::ResolveVelocity(velocityB, velocityA, collisionNormalB, pForceB->GetRestitution(),
+		myutils::ResolveVelocity(velocityB, velocityA, collisionNormalB, restitutionB,
 			inverseMassB, inverseMassA);
 
 		pForceB->SetVelocity(velocityB);
@@ -176,11 +181,6 @@ bool Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& c
 				// Normals for the new velocity calculation
 				collisionNormalA = myutils::GetNormal(pCollisionEvent->contactPointB, pTransformB->GetPosition());
 				collisionNormalB = myutils::GetNormal(pCollisionEvent->contactPointA, pTransformA->GetPosition());
-
-				pCollisionEvent->reflectionNormalA = myutils::GetReflectionNormal(pCollisionEvent->contactPointA,
-					pForceA->GetVelocity(), pTransformB->GetPosition());
-				pCollisionEvent->reflectionNormalB = myutils::GetReflectionNormal(pCollisionEvent->contactPointB,
-					pForceB->GetVelocity(), pTransformA->GetPosition());
 			}
 			else if (pCollB->Get_eShape() == eShape::MESH_OF_TRIANGLES_INDIRECT)
 			{
@@ -206,42 +206,25 @@ bool Physics::CheckCollisions(EntityID entityA, std::vector<sCollisionEvent*>& c
 
 				// Normals for the new velocity calculations
 				collisionNormalA = myutils::GetNormal(pCollisionEvent->pMeshTriangleCollision->vertices);
+			}
+			else if (pCollB->Get_eShape() == eShape::OBB)
+			{
+				sOBB* pOBBB = pCollB->GetShape<sOBB>();
 
-				pCollisionEvent->reflectionNormalA = myutils::GetReflectionNormal(pForceA->GetVelocity(), pCollisionEvent->pMeshTriangleCollision->vertices);
+				bool isCollision = this->SphereOBB_Test(pTransformA->GetPosition(), pSphereA->radius, pTransformB->GetPosition(), 
+												pTransformB->GetQuatOrientation(), pTransformB->GetScale(), pOBBB->center, pOBBB->maxXYZ, pCollisionEvent);
+
+				if (!isCollision)
+				{
+					continue;
+				}
+				// Normals for the new velocity calculation
+				collisionNormalB = myutils::GetNormal(pCollisionEvent->contactPointA, pTransformA->GetPosition());
+				collisionNormalA = -collisionNormalB;
 			}
 			else
 			{
 				// Not implemented shape
-				continue;
-			}
-		}
-		else if (pCollA->Get_eShape() == eShape::AABB)
-		{
-			sAABB* pAABB_A = pCollA->GetShape<sAABB>();
-
-			if (pCollB->Get_eShape() == eShape::GRID)
-			{
-				sGrid* pGridB = pCollB->GetShape<sGrid>();
-				bool isCollision = this->AABBGrid_Test(pAABB_A, pTransformA, pGridB, pTransformB, pCollisionEvent);
-
-				if (!isCollision)
-				{
-					continue;
-				}
-			}
-			else if (pCollB->Get_eShape() == eShape::AABB)
-			{
-				sAABB* pAABBB_B = pCollB->GetShape<sAABB>();
-				bool isCollision = this->AABBAABB_Test(pAABB_A, pTransformA, pAABBB_B, pTransformB, pCollisionEvent);
-
-				if (!isCollision)
-				{
-					continue;
-				}
-			}
-			else
-			{
-				// Not implemented test
 				continue;
 			}
 		}
@@ -498,6 +481,38 @@ bool Physics::AABBAABB_Test(sAABB* aabbA, TransformComponent* pTransformA,
 	}
 	pCollision->contactPointA = AminWorld;
 	pCollision->contactPointB = BminWorld;
+
+	return true;
+}
+
+bool Physics::SphereOBB_Test(glm::vec3 spherePosition, float sphereRadius, glm::vec3 obbPosition, glm::quat obbQOrientation, 
+							float obbScale, glm::vec3 obbCenter, glm::vec3 maxXYZ, sCollisionEvent* pCollision)
+{
+	// Transform center in world position
+	glm::mat4 worldMat = glm::mat4(1.0);
+	myutils::ApplyTranslation(obbPosition, worldMat);
+	myutils::ApplyRotation(obbQOrientation, worldMat);
+	myutils::ApplyScale(obbScale, worldMat);
+	glm::vec3 worldCenter = worldMat * glm::vec4(obbCenter, 1.0f);
+
+	// Get rotation
+	glm::mat4 rotationMat = glm::mat4(1.0);
+	myutils::ApplyRotation(obbQOrientation, rotationMat);
+
+	// Getting closest point from OBB
+	glm::vec3 obbClosestPoint = myutils::ClosestPtPointOBB(spherePosition, worldCenter, rotationMat, maxXYZ);
+
+	// Is this the closest so far
+	float distanceToOBB = glm::distance(obbClosestPoint, spherePosition);
+	if (distanceToOBB > sphereRadius)
+	{
+		return false;
+	}
+
+	// Return this with all the collision info
+	// The collision event is responsible for deleting it
+	pCollision->contactPointA = obbClosestPoint;
+	pCollision->contactPointB = obbClosestPoint;
 
 	return true;
 }

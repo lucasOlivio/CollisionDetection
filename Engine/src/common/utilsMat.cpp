@@ -6,6 +6,30 @@
 
 namespace myutils
 {
+    void ApplyTranslation(glm::vec3 position, glm::mat4& matModelOut)
+    {
+        // Translation
+        glm::mat4 matTranslate = glm::translate(glm::mat4(1.0f), position);
+
+        matModelOut = matModelOut * matTranslate;
+    }
+
+    void ApplyRotation(glm::quat qOrientation, glm::mat4& matModelOut)
+    {
+        // Rotation matrix generation
+        glm::mat4 matRotation = glm::mat4(qOrientation);
+
+        matModelOut = matModelOut * matRotation;
+    }
+
+    void ApplyScale(float scale, glm::mat4& matModelOut)
+    {
+        // Scaling matrix
+        glm::mat4 matScale = glm::scale(glm::mat4(1.0f), glm::vec3(scale));
+
+        matModelOut = matModelOut * matScale;
+    }
+
     void ApplyTransformInModelMat(iComponent* pTransform, glm::mat4& matModelOut)
     {
         TransformComponent* pTransComp = dynamic_cast<TransformComponent*>(pTransform);
@@ -15,22 +39,10 @@ namespace myutils
             return;
         }
 
-        // Translation
-        glm::mat4 matTranslate = glm::translate(glm::mat4(1.0f),
-                                                pTransComp->GetPosition());
-
-        // Rotation matrix generation
-        glm::mat4 matRotation = glm::mat4(pTransComp->GetQuatOrientation());
-
-        // Scaling matrix
-        glm::mat4 matScale = glm::scale(glm::mat4(1.0f),
-                                        glm::vec3(pTransComp->GetScale()));
-        //--------------------------------------------------------------
-
-        // Combine all these transformation
-        matModelOut = matModelOut * matTranslate;
-        matModelOut = matModelOut * matRotation;
-        matModelOut = matModelOut * matScale;
+        // Combine all the transformations
+        ApplyTranslation(pTransComp->GetPosition(), matModelOut);
+        ApplyRotation(pTransComp->GetQuatOrientation(), matModelOut);
+        ApplyScale(pTransComp->GetScale(), matModelOut);
 
         return;
     }
@@ -114,6 +126,28 @@ namespace myutils
         float v = vb / (va + vb + vc);
         float w = 1.0f - u - v; // = vc / (va + vb + vc)
         return u * a + v * b + w * c;
+    }
+
+    // From: Real-Time Collision Detection- Ericson, Christer- 9781558607323- Books - Amazon.ca
+    // Chapter 5:
+    glm::vec3 ClosestPtPointOBB(glm::vec3 p, glm::vec3 obbCenter, glm::mat3 obbRotation, glm::vec3 maxXYZ)
+    {
+        glm::vec3 d = p - obbCenter;
+        // Start result at center of box; make steps from there
+        glm::vec3 q = obbCenter;
+        // For each OBB axis...
+        for (int i = 0; i < 3; i++) {
+            // ...project d onto that axis to get the distance
+            // along the axis of d from the box center
+            float dist = glm::dot(d, obbRotation[i]);
+            // If distance farther than the box extents, clamp to the box
+            if (dist > maxXYZ[i]) dist = maxXYZ[i];
+            if (dist < -maxXYZ[i]) dist = -maxXYZ[i];
+            // Step that distance along the axis to get world coordinate
+            q += dist * obbRotation[i];
+        }
+
+        return q;
     }
 
     glm::vec3 GetCollisionNormal(glm::vec3 velocityA, glm::vec3 velocityB)

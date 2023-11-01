@@ -71,4 +71,7 @@ public:
 	bool AABBGrid_Test(sAABB* aabb, TransformComponent* pTransformAABB,
 		sGrid* grid, TransformComponent* pTransformGrid,
 		sCollisionEvent* pCollision);
+
+	bool SphereOBB_Test(glm::vec3 spherePosition, float sphereRadius, glm::vec3 obbPosition, glm::quat obbQOrientation,
+						float obbScale, glm::vec3 obbCenter, glm::vec3 maxXYZ, sCollisionEvent* pCollision);
 };

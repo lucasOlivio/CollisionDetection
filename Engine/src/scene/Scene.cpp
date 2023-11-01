@@ -63,6 +63,7 @@ EntityID Scene::CreateEntity(EntityID entityID)
     ComponentBuilder compBuilder = ComponentBuilder(this);
     for (sComponentInfo sCompInfo : componentsInfo)
     {
+        // Don`t Copy player!
         if (sCompInfo.componentName == "player")
         {
             continue;
@@ -159,6 +160,12 @@ void Scene::SetComponent(EntityID entityID, std::string componentName, iComponen
         pPlayer->SetPlaying(this->IsPlaying());
     }
 
+    if (componentName == "animation")
+    {
+        AnimationComponent* pAnimation = (AnimationComponent*)componentIn;
+        pAnimation->SetActive(this->IsPlaying());
+    }
+
     if (componentName == "collision")
     {
         CollisionComponent* pCollision = (CollisionComponent*)componentIn;
@@ -219,6 +226,14 @@ void Scene::SendAction(std::string action, EntityID entityID, sParameterInfo& pa
             pCollision->SetActive(true);
         }
     }
+    else if (action == "rotate")
+    {
+        TransformComponent* pTransform = (TransformComponent*)this->GetComponent(entityID, "transform");
+        if (pTransform)
+        {
+            pTransform->AdjustOrientation(parameterIn.parameterVec3Value);
+        }
+    }
     else if (action == "destroy")
     {
         this->DeleteEntity(entityID);
@@ -242,9 +257,4 @@ bool Scene::IsPlaying()
 void Scene::SetPlaying(bool isPlaying)
 {
     this->m_isPlaying = isPlaying;
-
-    if (!this->m_isPlaying)
-    {
-
-    }
 }

@@ -11,12 +11,11 @@ private:
 	bool m_isActive;
 	double m_elapsedTime;
 
-	// Scale animation
-	EntityID m_changeTo;
+	// Rotation animation
 	float m_duration;
-	int m_scaleRate; // Quantity per second that will increase
+	glm::vec3 m_velocity; // Quantity per second that will increase
 
-	void m_UpdateScale(double deltaTime);
+	void m_UpdateRotation(double deltaTime);
 
 public:
 	AnimationComponent();
@@ -27,7 +26,10 @@ public:
 	bool isWireframe;
 	bool doNotLight;
 
-	// Toggle animation on/off
+	// Will only set active to true/false
+	void SetActive(bool isActive);
+
+	// Toggle animation on/off, will also reset time
 	void Toggle();
 
 	virtual void GetInfo(sComponentInfo& compInfoOut);

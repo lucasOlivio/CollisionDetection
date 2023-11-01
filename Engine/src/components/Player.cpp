@@ -62,6 +62,11 @@ void PlayerComponent::PlayerActions(sKeyInfo keyInfo)
 		// Calculate the force based on the new X position (always going towards the center 0)
 		param.parameterVec3Value.x = -(param.parameterFloatValue / 5);
 		this->m_pGameplayDirector->SendAction("shoot", this->m_entityID, param);
+
+		// Second ball going in iverse to demonstrate sphere sphere collision
+		param.parameterFloatValue = -param.parameterFloatValue;
+		param.parameterVec3Value.x = -(param.parameterVec3Value.x);
+		this->m_pGameplayDirector->SendAction("shoot", this->m_entityID, param);
 	}
 	else
 	{

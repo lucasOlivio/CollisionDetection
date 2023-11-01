@@ -9,7 +9,7 @@ void KeyWrapper::SetKeyEvent(KeyEvent* pKeyEvent)
 
 void KeyWrapper::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (!m_pKeyEvent)
+	if (!m_pKeyEvent || !key)
 	{
 		// Event not configured
 		return;

@@ -17,6 +17,4 @@ struct sCollisionEvent
 	glm::vec3 positionB;
 	glm::vec3 velocityAtCollisionA;
 	glm::vec3 velocityAtCollisionB;
-	glm::vec3 reflectionNormalA;
-	glm::vec3 reflectionNormalB;
 };

@@ -319,12 +319,14 @@ void Editor::KeyActions(sKeyInfo keyInfo)
 		{
 			this->m_selectedEntity = this->m_lastSelectedEntity;
 			this->m_selectedParameter = 0;
+			this->m_selectedComponent = 0;
 		}
 		else
 		{
 			this->m_lastSelectedEntity = this->m_selectedEntity;
 			this->m_selectedEntity = 0;
 			this->m_selectedParameter = 0;
+			this->m_selectedComponent = 0;
 		}
 		return;
 	}
@@ -556,9 +558,13 @@ void Editor::SetParameterManually(int axis)
 		{
 			paramInfo.parameterFloatValue = std::stof(value);
 		}
+		else if (paramInfo.parameterType == "int")
+		{
+			paramInfo.parameterIntValue = std::stoi(value);
+		}
 		else
 		{
-			paramInfo.parameterFloatValue = std::stoi(value);
+			paramInfo.parameterBoolValue = std::stoi(value);
 		}
 	}
 	else if (paramInfo.parameterType == "vec3")

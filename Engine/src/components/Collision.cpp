@@ -66,6 +66,19 @@ void CollisionComponent::SetShape(eShape shape, sParameterInfo& parameterIn)
 			pAABB->maxXYZ += pAABB->offset;
 		}
 	}
+	else if (shape == eShape::OBB)
+	{
+		sOBB* pOBB = (sOBB*)this->m_pShape;
+
+		if (parameterIn.parameterName == "maxXYZ")
+		{
+			pOBB->maxXYZ = parameterIn.parameterVec3Value;
+		}
+		else if (parameterIn.parameterName == "center")
+		{
+			pOBB->center = parameterIn.parameterVec3Value;
+		}
+	}
 	else if (shape == eShape::GRID)
 	{
 		sGrid* pGrid = (sGrid*)this->m_pShape;
@@ -151,6 +164,10 @@ void CollisionComponent::Set_eShape(eShape shape)
 	{
 		this->m_pShape = new sGrid();
 	}
+	else if (this->m_eShape == eShape::OBB)
+	{
+		this->m_pShape = new sGrid();
+	}
 }
 
 void CollisionComponent::GetInfo(sComponentInfo& compInfoOut)
@@ -195,6 +212,12 @@ void CollisionComponent::GetInfo(sComponentInfo& compInfoOut)
 		this->AddCompParInfo("minXYZ", "vec3", pGrid->minXYZ, compInfoOut);
 		this->AddCompParInfo("maxXYZ", "vec3", pGrid->maxXYZ, compInfoOut);
 		this->AddCompParInfo("gridFile", "string", pGrid->gridFile, compInfoOut);
+	}
+	else if (this->m_eShape == eShape::OBB)
+	{
+		sOBB* pOBB = (sOBB*)this->m_pShape;
+		this->AddCompParInfo("maxXYZ", "vec3", pOBB->maxXYZ, compInfoOut);
+		this->AddCompParInfo("center", "vec3", pOBB->center, compInfoOut);
 	}
 
 	return;

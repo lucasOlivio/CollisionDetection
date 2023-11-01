@@ -5,38 +5,25 @@
 
 AnimationComponent::AnimationComponent()
 {
-    this->m_changeTo = 0;
     this->m_elapsedTime = 0;
     this->m_duration = 0;
-    this->m_scaleRate = 0;
+    this->m_velocity = glm::vec3(0);
 }
 
 AnimationComponent::~AnimationComponent()
 {
 }
 
-void AnimationComponent::m_UpdateScale(double deltaTime)
+void AnimationComponent::m_UpdateRotation(double deltaTime)
 {
-    if (this->m_elapsedTime >= this->m_duration)
+    if (this->m_duration > 0 && this->m_elapsedTime >= this->m_duration)
     {
-        if (this->m_changeTo == 0)
-        {
-            sParameterInfo ignore;
-            this->m_pGameplayDirector->SendAction("destroy", this->GetEntityID(), ignore);
-        }
-        else
-        {
-            sParameterInfo newModel;
-            newModel.parameterIntValue = this->m_changeTo;
-            this->m_pGameplayDirector->SendAction("changeInto", this->GetEntityID(), newModel);
-        }
+        this->m_isActive = false;
     }
 
-    float deltaScale = (this->m_scaleRate * (float)deltaTime);
-
     sParameterInfo delta;
-    delta.parameterFloatValue = deltaScale;
-    this->m_pGameplayDirector->SendAction("scaleTransform", this->GetEntityID(), delta);
+    delta.parameterVec3Value = this->m_velocity;
+    this->m_pGameplayDirector->SendAction("rotate", this->GetEntityID(), delta);
 }
 
 void AnimationComponent::GetInfo(sComponentInfo& compInfoOut)
@@ -46,8 +33,7 @@ void AnimationComponent::GetInfo(sComponentInfo& compInfoOut)
 
     this->AddCompParInfo("isActive", "bool", this->m_isActive, compInfoOut);
     this->AddCompParInfo("duration", "float", this->m_duration, compInfoOut);
-    this->AddCompParInfo("changeTo", "int", (int)this->m_changeTo, compInfoOut);
-    this->AddCompParInfo("scaleRate", "int", this->m_scaleRate, compInfoOut);
+    this->AddCompParInfo("velocity", "vec3", this->m_velocity, compInfoOut);
 }
 
 void AnimationComponent::SetParameter(sParameterInfo& parameterIn)
@@ -60,14 +46,16 @@ void AnimationComponent::SetParameter(sParameterInfo& parameterIn)
     else if (parameterIn.parameterName == "duration") {
         this->m_duration = parameterIn.parameterFloatValue;
     }
-    else if (parameterIn.parameterName == "scaleRate") {
-        this->m_scaleRate = parameterIn.parameterIntValue;
-    }
-    else if (parameterIn.parameterName == "changeTo") {
-        this->m_changeTo = parameterIn.parameterIntValue;
+    else if (parameterIn.parameterName == "velocity") {
+        this->m_velocity = parameterIn.parameterVec3Value;
     }
 
     return;
+}
+
+void AnimationComponent::SetActive(bool isActive)
+{
+    this->m_isActive = isActive;
 }
 
 void AnimationComponent::Toggle()
@@ -92,7 +80,7 @@ void AnimationComponent::Update(double deltaTime, uint shaderID, iShaderInfo* pS
 
     this->m_elapsedTime += deltaTime;
 
-    this->m_UpdateScale(deltaTime);
+    this->m_UpdateRotation(deltaTime);
 }
 
 void AnimationComponent::Render()

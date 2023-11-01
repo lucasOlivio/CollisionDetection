@@ -18,7 +18,8 @@ enum eShape
 	CAPSULE,
 	MESH_OF_TRIANGLES_INDIRECT,
 	MESH_OF_TRIANGLES_LOCAL_VERTICES,
-	GRID
+	GRID,
+	OBB
 };
 
 enum eBodyType
@@ -115,6 +116,23 @@ struct sAABB
 	glm::vec3 minXYZ = glm::vec3(0.0f);
 	glm::vec3 maxXYZ = glm::vec3(0.0f);
 	glm::vec3 offset = glm::vec3(0.0f);
+};
+
+struct sOBB {
+	sOBB(glm::vec3 center, glm::mat4 matRotation, glm::vec3 maxXYZ)
+	{
+		this->center = glm::vec3(0.0f);
+		this->maxXYZ = glm::vec3(0.0f);
+	}
+
+	sOBB()
+	{
+		this->center = glm::vec3(0.0f);
+		this->maxXYZ = glm::vec3(0.0f);
+	}
+
+	glm::vec3 center;
+	glm::vec3 maxXYZ;      // Positive halfwidth extents of OBB along each axis
 };
 
 struct sCapsule

@@ -1,8 +1,14 @@
 #include "components/iComponent.h"
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace myutils
 {
+    void ApplyTranslation(glm::vec3 position, glm::mat4& matModelOut);
+    void ApplyRotation(glm::quat qOrientation, glm::mat4& matModelOut);
+    void ApplyScale(float scale, glm::mat4& matModelOut);
+
+    // TODO: Remove reference  to object here
 	void ApplyTransformInModelMat(iComponent* pTransform, glm::mat4& matModelOut);
 
     double distance(const glm::vec3& p1, const glm::vec3& p2);
@@ -13,6 +19,10 @@ namespace myutils
     // From: Real-Time Collision Detection- Ericson, Christer- 9781558607323- Books - Amazon.ca
     // Chapter 5:
     glm::vec3 ClosestPtPointTriangle(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c);
+
+    // From: Real-Time Collision Detection- Ericson, Christer- 9781558607323- Books - Amazon.ca
+    // Chapter 5:
+    glm::vec3 ClosestPtPointOBB(glm::vec3 p, glm::vec3 obbCenter, glm::mat3 obbRotation, glm::vec3 maxXYZ);
 
     // Calculates the normal for a sphere based on the collision point and the center of sphere
     glm::vec3 GetNormal(glm::vec3 collisionPoint, glm::vec3 center);
