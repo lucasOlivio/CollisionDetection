@@ -15,6 +15,13 @@ Project for "physics" class. Spheres colliding against each other and against a 
 3. Build first the "Engine" project, then run the startup project
 4. If using the .exe generated remember that it should be at the same folder as the "assets" and "configs" folder
 5. Press P to start playing.
+6. Press SPACE to shoot the balls.
+
+## Questions
+
+- The objects collision are detected in the EnginePhysics/Physics class, it will detect the type of collision and give the appropriate response accordingly to the type of the body (Kinatic, dynamic or static)
+- The collisions formula are all in the EnginePhysics/Physics class for now. The type of collisions fully implemented are Sphere-Sphere, Sphere-Mesh, Sphere-OBB (The Sphere-OBB collision is not working properly, the collision detection is happening, but the response is wrong and I wasn't able to fix it.)
+- The collisions are detected in the "CheckCollisions" function and the responses happen at the "ResolveCollision" function
 
 ## How to use
 
@@ -49,7 +56,3 @@ Project for "physics" class. Spheres colliding against each other and against a 
     - S (GLFW_KEY_S) and W (GLFW_KEY_W) - Move the camera in the Z direction.
     - Z (GLFW_KEY_Z) and X (GLFW_KEY_X) - Change the camera target in the X direction.
     - C (GLFW_KEY_C) and V (GLFW_KEY_V) - Change the camera target in the Y direction.
-
-### Screenshots
-
-![Scene print](docs/sceneprint.png)
